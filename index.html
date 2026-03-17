@@ -1261,17 +1261,23 @@
                 border-radius: 50%;
                 cursor: pointer;
                 border: 2px solid transparent;
-                transition: transform 0.2s;
+                transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.15s;
                 box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2);
             }
 
             .tp-swatch:hover {
-                transform: scale(1.1);
+                transform: scale(1.18) translateY(-2px);
+            }
+
+            .tp-swatch:active {
+                transform: scale(0.9);
+                transition: transform 0.08s ease;
             }
 
             .tp-swatch.active {
-                border-color: white;
-                box-shadow: 0 0 0 3px var(--border-focus), inset 0 0 0 2px rgba(0,0,0,0.2);
+                border-color: white !important;
+                box-shadow: 0 0 0 3px var(--accent), inset 0 0 0 2px rgba(0,0,0,0.15);
+                transform: scale(1.15);
             }
 
             .tp-mode-toggle {
@@ -1530,26 +1536,6 @@
                 transition: background-color 0.3s ease, color 0.3s ease;
             }
 
-            .tp-swatch {
-                transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.15s;
-                cursor: pointer;
-            }
-
-            .tp-swatch:hover {
-                transform: scale(1.18) translateY(-2px);
-            }
-
-            .tp-swatch:active {
-                transform: scale(0.9);
-                transition: transform 0.08s ease;
-            }
-
-            .tp-swatch.active {
-                border-color: white !important;
-                box-shadow: 0 0 0 3px var(--accent), inset 0 0 0 2px rgba(0,0,0,0.15);
-                transform: scale(1.15);
-            }
-
             .tp-preview {
                 margin-top: 24px;
                 border-radius: 10px;
@@ -1616,12 +1602,6 @@
                 margin-bottom: 4px;
             }
 
-            .tp-swatch.active {
-                border-color: white;
-                box-shadow: 0 0 0 3px var(--accent), inset 0 0 0 2px rgba(0,0,0,0.2);
-                transform: scale(1.15);
-            }
-
             @keyframes spin {
                 from {
                     transform: rotate(0deg);
@@ -1635,6 +1615,13 @@
             .spinner {
                 animation: spin 1s linear infinite;
                 display: inline-block;
+            }
+
+            .or-divider {
+                text-align: center;
+                margin: 8px 0;
+                color: var(--text-muted);
+                font-size: 0.8rem;
             }
 
             @media (max-width: 1024px) {
@@ -2290,7 +2277,7 @@
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                     </svg>
                     Continue with Google
-            
+                
                 </button>
             </div>
         </div>
@@ -2310,7 +2297,7 @@
                         <label class="form-label">File (PDF/Word/Image, max 50MB)</label>
                         <input type="file" id="uploadFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
                     </div>
-                    <div style="text-align:center; margin:16px 0; color:var(--text-muted); font-size:0.8rem;">— OR —</div>
+                    <div class="or-divider">— OR —</div>
                     <div class="form-group">
                         <label class="form-label">External Link (Drive, Docs, etc.)</label>
                         <input type="url" id="uploadUrl" class="input" placeholder="https://...">
@@ -2454,6 +2441,11 @@
                         <textarea id="sylBody" class="input" rows="5" placeholder="List topics, sub-topics, outcomes..."></textarea>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">File Upload (PDF/Doc/Image, max 50MB)</label>
+                        <input type="file" id="sylFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                    </div>
+                    <div class="or-divider">— OR —</div>
+                    <div class="form-group">
                         <label class="form-label">Reference Link (Optional)</label>
                         <input type="url" id="sylUrl" class="input" placeholder="https://...">
                     </div>
@@ -2484,6 +2476,11 @@
                         <label class="form-label">Content</label>
                         <textarea id="noteBody" class="input" rows="6" placeholder="Notes, key points, summaries..."></textarea>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">File Upload (PDF/Doc/Image, max 50MB)</label>
+                        <input type="file" id="noteFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                    </div>
+                    <div class="or-divider">— OR —</div>
                     <div class="form-group">
                         <label class="form-label">File / Drive Link (Optional)</label>
                         <input type="url" id="noteUrl" class="input" placeholder="https://...">
@@ -4186,6 +4183,7 @@
                 document.getElementById('sylTitle').value = '';
                 document.getElementById('sylBody').value = '';
                 document.getElementById('sylUrl').value = '';
+                document.getElementById('sylFile').value = '';
                 openModal('syllabusModal');
             }
             function openEditSyllabusModal(id) {
@@ -4197,18 +4195,39 @@
                 document.getElementById('sylTitle').value = item.title || '';
                 document.getElementById('sylBody').value = item.body || '';
                 document.getElementById('sylUrl').value = item.ref_url || '';
+                document.getElementById('sylFile').value = '';
                 openModal('syllabusModal');
             }
             async function saveSyllabus() {
                 const title = document.getElementById('sylTitle').value.trim();
                 const body = document.getElementById('sylBody').value.trim();
-                const ref_url = document.getElementById('sylUrl').value.trim();
+                let ref_url = document.getElementById('sylUrl').value.trim();
                 const id = document.getElementById('sylId').value;
+                const file = document.getElementById('sylFile')?.files[0];
                 if (!title)
                     return showToast('Title required', 'error');
                 const btn = document.getElementById('saveSylBtn');
                 btn.disabled = true;
                 btn.textContent = 'Saving...';
+                if (file) {
+                    if (file.size > 50 * 1024 * 1024) {
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('File too large (max 50MB)', 'error');
+                    }
+                    const ext = file.name.split('.').pop();
+                    const path = `syllabus/${state.currentSubjectId}/${Date.now()}.${ext}`;
+                    try {
+                        const {error} = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
+                        if (error)
+                            throw error;
+                        ref_url = supabaseClient.storage.from('assignment-pdfs').getPublicUrl(path).data.publicUrl;
+                    } catch (e) {
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('Upload failed: ' + (e.message || ''), 'error');
+                    }
+                }
                 const payload = {
                     title,
                     body: body || null,
@@ -4236,6 +4255,7 @@
                 document.getElementById('noteTitle').value = '';
                 document.getElementById('noteBody').value = '';
                 document.getElementById('noteUrl').value = '';
+                document.getElementById('noteFile').value = '';
                 openModal('noteModal');
             }
             function openEditNoteModal(id) {
@@ -4247,18 +4267,39 @@
                 document.getElementById('noteTitle').value = item.title || '';
                 document.getElementById('noteBody').value = item.body || '';
                 document.getElementById('noteUrl').value = item.ref_url || '';
+                document.getElementById('noteFile').value = '';
                 openModal('noteModal');
             }
             async function saveNote() {
                 const title = document.getElementById('noteTitle').value.trim();
                 const body = document.getElementById('noteBody').value.trim();
-                const ref_url = document.getElementById('noteUrl').value.trim();
+                let ref_url = document.getElementById('noteUrl').value.trim();
                 const id = document.getElementById('noteId').value;
+                const file = document.getElementById('noteFile')?.files[0];
                 if (!title)
                     return showToast('Title required', 'error');
                 const btn = document.getElementById('saveNoteBtn');
                 btn.disabled = true;
                 btn.textContent = 'Saving...';
+                if (file) {
+                    if (file.size > 50 * 1024 * 1024) {
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('File too large (max 50MB)', 'error');
+                    }
+                    const ext = file.name.split('.').pop();
+                    const path = `notes/${state.currentSubjectId}/${Date.now()}.${ext}`;
+                    try {
+                        const {error} = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
+                        if (error)
+                            throw error;
+                        ref_url = supabaseClient.storage.from('assignment-pdfs').getPublicUrl(path).data.publicUrl;
+                    } catch (e) {
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('Upload failed: ' + (e.message || ''), 'error');
+                    }
+                }
                 const payload = {
                     title,
                     body: body || null,
