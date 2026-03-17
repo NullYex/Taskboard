@@ -1,0 +1,4435 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default" data-mode="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <meta name="color-scheme" content="dark light">
+        <title>TaskBoard by NullYex</title>
+        <style>
+            .icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 1em;
+                height: 1em;
+                vertical-align: -0.125em;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                flex-shrink: 0;
+            }
+
+            .icon-lg {
+                width: 1.25em;
+                height: 1.25em;
+            }
+
+            .icon-xl {
+                width: 1.5em;
+                height: 1.5em;
+            }
+
+            .icon-2xl {
+                width: 2em;
+                height: 2em;
+            }
+
+            .icon-3xl {
+                width: 3em;
+                height: 3em;
+            }
+
+            @keyframes icon-spin {
+                from {
+                    transform: rotate(0deg)
+                }
+
+                to {
+                    transform: rotate(360deg)
+                }
+            }
+
+            .icon-spin {
+                animation: icon-spin 1s linear infinite;
+            }
+        </style>
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0a0a0a" id="themeColorMeta">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="application-name" content="TaskBoard">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+        <style>
+            :root {
+                --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                --font-mono: 'JetBrains Mono', monospace;
+                --radius-sm: 6px;
+                --radius-md: 8px;
+                --shadow-modal: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+                --danger: #e05050;
+                --warning: #d4a017;
+                --success: #4a9a5a;
+            }
+
+            [data-mode="dark"] {
+                --bg-dark: #0a0a0a;
+                --panel-bg: #111114;
+                --panel-bg-alt: #16161a;
+                --bg-modal: #111114;
+                --text-main: #f3f3f6;
+                --text-muted: #8b8b93;
+                --border: rgba(255, 255, 255, 0.08);
+                --border-focus: rgba(255, 255, 255, 0.15);
+            }
+
+            [data-theme="default"] {
+                --accent: #7c5cff;
+                --accent-hover: #6a4deb;
+                --accent-alpha: rgba(124, 92, 255, 0.12);
+            }
+
+            [data-theme="midnight"] {
+                --accent: #5a9cf5;
+                --accent-hover: #3a7adc;
+                --accent-alpha: rgba(90, 156, 245, 0.15);
+            }
+
+            [data-theme="forest"] {
+                --accent: #50c878;
+                --accent-hover: #38a860;
+                --accent-alpha: rgba(80, 200, 120, 0.15);
+            }
+
+            [data-theme="berry"] {
+                --accent: #d870e8;
+                --accent-hover: #b850c8;
+                --accent-alpha: rgba(216, 112, 232, 0.15);
+            }
+
+            [data-theme="royal"] {
+                --accent: #f0b830;
+                --accent-hover: #d09810;
+                --accent-alpha: rgba(240, 184, 48, 0.15);
+            }
+
+            [data-theme="sunset"] {
+                --accent: #f07050;
+                --accent-hover: #d05030;
+                --accent-alpha: rgba(240, 112, 80, 0.15);
+            }
+
+            [data-theme="violet"] {
+                --accent: #a070f0;
+                --accent-hover: #8050d8;
+                --accent-alpha: rgba(160, 112, 240, 0.15);
+            }
+
+            [data-theme="slate"] {
+                --accent: #88aacc;
+                --accent-hover: #6888b0;
+                --accent-alpha: rgba(136, 170, 204, 0.15);
+            }
+
+            [data-theme="ocean"] {
+                --accent: #40c8c0;
+                --accent-hover: #28a8a0;
+                --accent-alpha: rgba(64, 200, 192, 0.15);
+            }
+
+            [data-theme="coffee"] {
+                --accent: #e09050;
+                --accent-hover: #c07030;
+                --accent-alpha: rgba(224, 144, 80, 0.15);
+            }
+
+            [data-mode="light"] {
+                --bg-dark: #f8f8f8;
+                --panel-bg: #ffffff;
+                --panel-bg-alt: #f0f0f0;
+                --bg-modal: #ffffff;
+                --text-main: #0a0a0a;
+                --text-muted: #666666;
+                --border: rgba(0,0,0,0.1);
+                --border-focus: rgba(0,0,0,0.2);
+                --shadow-modal: 0 24px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.08);
+            }
+
+            [data-mode="light"][data-theme="default"] {
+                --accent: #0a0a0a;
+                --accent-hover: #333333;
+                --accent-alpha: rgba(0,0,0,0.07);
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: var(--bg-dark);
+                color: var(--text-main);
+                font-family: var(--font-family);
+                line-height: 1.5;
+                display: flex;
+                height: 100dvh;
+                overflow: hidden;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--border-focus);
+                border-radius: 9999px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--text-muted);
+            }
+
+            button {
+                cursor: pointer;
+                font-family: inherit;
+                background: none;
+                border: none;
+                color: inherit;
+            }
+
+            input, select, textarea {
+                font-family: inherit;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            .mono {
+                font-family: var(--font-mono);
+            }
+
+            .text-xs {
+                font-size: 0.75rem;
+            }
+
+            .app-container {
+                display: flex;
+                width: 100%;
+                height: 100%;
+            }
+
+            .sidebar {
+                width: 260px;
+                background-color: var(--panel-bg);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                transition: width 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.3s ease;
+                z-index: 100;
+                overflow-x: hidden;
+            }
+
+            .sidebar-header {
+                padding: 24px 16px 16px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-header-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 24px;
+            }
+
+            .brand {
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: var(--text-main);
+                padding: 0 12px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                letter-spacing: -0.02em;
+            }
+
+            .brand-icon {
+                width: 24px;
+                height: 24px;
+                background: transparent;
+                color: var(--accent);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+
+            .desktop-toggle {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: none;
+            }
+
+            .nav-section-label {
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--text-muted);
+                margin: 16px 12px 8px;
+                font-weight: 600;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .subject-list {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                flex: 1;
+                overflow-y: auto;
+                padding: 16px 12px;
+                scroll-behavior: smooth;
+                position: relative;
+            }
+
+            .subject {
+                padding: 10px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                color: var(--text-muted);
+                font-size: 0.85rem;
+                font-weight: 500;
+                transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border: 1px solid transparent;
+                user-select: none;
+                gap: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                position: relative;
+                z-index: 1;
+                flex-shrink: 0;
+            }
+
+            .subject:hover {
+                color: var(--text-main);
+                transform: translateX(2px);
+                background: var(--border);
+            }
+
+            .subject.active:hover {
+                background: transparent;
+            }
+
+            .subject.active {
+                color: var(--text-main);
+                font-weight: 600;
+                border-color: transparent;
+                transform: translateX(1px);
+            }
+
+            #sidebarActivePill {
+                position: absolute;
+                left: 12px;
+                right: 12px;
+                background: var(--accent-alpha);
+                border: 1px solid var(--accent);
+                border-radius: 8px;
+                pointer-events: none;
+                z-index: 0;
+                transition: top 0.2s cubic-bezier(0.4, 0, 0.2, 1), height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+                opacity: 0;
+            }
+
+            .subject-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                overflow: hidden;
+            }
+
+            .subject-icon {
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--panel-bg-alt);
+                border-radius: 4px;
+                font-size: 0.65rem;
+                font-family: var(--font-mono);
+                font-weight: 700;
+                flex-shrink: 0;
+                border: 1px solid var(--border);
+            }
+
+            .subject.active .subject-icon {
+                background: var(--accent);
+                color: var(--bg-dark);
+                border-color: var(--accent);
+            }
+
+            .subject-name {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .subject-count {
+                font-size: 0.7rem;
+                font-family: var(--font-mono);
+                background: var(--border);
+                padding: 2px 6px;
+                border-radius: 12px;
+                color: var(--text-muted);
+                min-width: 24px;
+                text-align: center;
+            }
+
+            .subject.active .subject-count {
+                background: var(--accent);
+                color: #fff;
+            }
+
+            .sidebar.collapsed {
+                width: 80px;
+            }
+
+            .sidebar.collapsed .brand-text, .sidebar.collapsed .subject-name, .sidebar.collapsed .subject-count, .sidebar.collapsed .user-info, .sidebar.collapsed .sidebar-actions {
+                display: none;
+            }
+
+            .sidebar.collapsed .nav-section-label {
+                font-size: 0;
+                height: 2px;
+                width: 24px;
+                background: var(--border-focus);
+                margin: 16px auto 8px;
+                padding: 0;
+                color: transparent;
+                border-radius: 2px;
+            }
+
+            .sidebar.collapsed .sidebar-header-top {
+                flex-direction: column;
+                gap: 24px;
+                margin-bottom: 16px;
+            }
+
+            .sidebar.collapsed .brand {
+                padding: 0;
+            }
+
+            .sidebar.collapsed .subject {
+                justify-content: center;
+                padding: 10px;
+            }
+
+            .sidebar.collapsed .subject-content {
+                gap: 0;
+            }
+
+            .sidebar.collapsed .sidebar-footer {
+                padding: 16px 12px;
+                justify-content: center;
+            }
+
+            .sidebar.collapsed .user-profile {
+                padding: 10px;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .sidebar.collapsed .subject:hover {
+                transform: scale(1.05);
+            }
+
+            .sidebar.collapsed .subject.active {
+                transform: scale(1.05);
+            }
+
+            .sidebar-footer {
+                padding: 16px 12px;
+                border-top: 1px solid var(--border);
+                background: var(--panel-bg);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-shrink: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+            }
+
+            .user-profile {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                overflow: hidden;
+                padding: 8px;
+                border-radius: 8px;
+                transition: background 0.2s;
+                flex: 1;
+            }
+
+            .user-profile:hover {
+                background: var(--border);
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: var(--accent);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.8rem;
+                font-weight: 600;
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+
+            .avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .user-info {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .user-name {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: var(--text-main);
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            .user-role {
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            .sidebar-actions {
+                display: flex;
+                gap: 4px;
+            }
+
+            .icon-btn {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                color: var(--text-muted);
+                transition: all 0.2s;
+                position: relative;
+                font-size: 1.2rem;
+            }
+
+            .icon-btn:hover {
+                background: var(--border);
+                color: var(--accent);
+            }
+
+            .icon-btn .badge {
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                width: 8px;
+                height: 8px;
+                background: var(--danger);
+                border-radius: 50%;
+                border: 2px solid var(--panel-bg);
+            }
+
+            .workspace {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+                background-color: var(--bg-dark);
+                position: relative;
+                scroll-behavior: smooth;
+            }
+
+            .mobile-header {
+                display: none;
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border);
+                align-items: center;
+                gap: 16px;
+                background: var(--panel-bg);
+                position: sticky;
+                top: 0;
+                z-index: 90;
+            }
+
+            .menu-toggle {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 4px;
+                color: var(--text-main);
+            }
+
+            .menu-toggle span {
+                display: block;
+                width: 20px;
+                height: 2px;
+                background: currentColor;
+                border-radius: 2px;
+            }
+
+            .workspace-content {
+                padding: 56px 64px;
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                min-height: 100%;
+            }
+
+            .workspace-header {
+                margin-bottom: 24px;
+                animation: fadeIn 0.3s ease;
+                flex-shrink: 0;
+            }
+
+            .workspace-header h1 {
+                font-size: 2.25rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+                letter-spacing: -0.03em;
+                color: var(--text-main);
+            }
+
+            .subject-meta {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                color: var(--text-muted);
+                font-size: 0.95rem;
+            }
+
+            .subject-meta span {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .meta-divider {
+                width: 4px;
+                height: 4px;
+                background: var(--border-focus);
+                border-radius: 50%;
+            }
+
+            .quick-actions {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 48px;
+                flex-wrap: wrap;
+                animation: fadeIn 0.4s ease;
+                flex-shrink: 0;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.2s ease;
+                font-family: var(--font-family);
+                border: 1px solid transparent;
+            }
+
+            .btn-secondary {
+                background: var(--panel-bg-alt);
+                color: var(--text-main);
+                border-color: var(--border);
+            }
+
+            .btn-secondary:hover:not(:disabled) {
+                background: var(--border);
+                border-color: var(--border-focus);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+            }
+
+            .btn-primary:hover:not(:disabled) {
+                background: var(--accent-hover);
+                border-color: var(--accent-hover);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+
+            .btn-ghost {
+                background: transparent;
+                color: var(--text-muted);
+                border-color: var(--border);
+            }
+
+            .btn-ghost:hover:not(:disabled) {
+                background: var(--border);
+                color: var(--text-main);
+                border-color: var(--border-focus);
+            }
+
+            .btn-danger {
+                background: rgba(224,80,80,0.1);
+                color: var(--danger);
+                border-color: rgba(224,80,80,0.2);
+            }
+
+            .btn-danger:hover:not(:disabled) {
+                background: rgba(224,80,80,0.2);
+            }
+
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .content-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 48px;
+                animation: fadeIn 0.5s ease;
+                flex: 1;
+                max-width: 900px;
+            }
+
+            .section-title {
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--text-muted);
+                margin-bottom: 24px;
+                font-weight: 600;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .timeline {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .task {
+                position: relative;
+            }
+
+            .task-body {
+                background: var(--panel-bg);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 14px 16px;
+                position: relative;
+                transition: border-color 0.2s;
+            }
+
+            .task-body:hover {
+                border-color: var(--border-focus);
+            }
+
+            .task-content {
+                flex: 1;
+            }
+
+            .task.completed .task-body {
+                opacity: 0.6;
+            }
+
+            .task-checkbox {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                width: 22px;
+                height: 22px;
+                border-radius: 6px;
+                border: 2px solid var(--border-focus);
+                background: var(--bg-dark);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.15s ease;
+                flex-shrink: 0;
+            }
+
+            .task-checkbox:hover {
+                border-color: var(--accent);
+                background: var(--accent-alpha);
+            }
+
+            .task-checkbox.checked {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: white;
+            }
+
+            .task-title {
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 6px;
+                color: var(--text-main);
+                padding-right: 32px;
+            }
+
+            .task.completed .task-title {
+                text-decoration: line-through;
+                color: var(--text-muted);
+            }
+
+            .task-meta {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 0.8rem;
+                flex-wrap: wrap;
+                margin-bottom: 12px;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 8px;
+                border-radius: 12px;
+                background: var(--border);
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            .chip.danger {
+                background: rgba(224,80,80,0.1);
+                color: var(--danger);
+            }
+
+            .chip.warning {
+                background: rgba(212,160,23,0.1);
+                color: var(--warning);
+            }
+
+            .task-actions {
+                display: flex;
+                gap: 8px;
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid var(--border);
+                flex-wrap: wrap;
+            }
+
+            .uploads-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 12px;
+            }
+
+            .upload-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 8px 12px;
+                background: var(--bg-dark);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .upload-item:hover {
+                border-color: var(--border-focus);
+                background: var(--panel-bg-alt);
+            }
+
+            .upload-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                overflow: hidden;
+                flex: 1;
+            }
+
+            .upload-icon {
+                color: var(--text-muted);
+                font-size: 1.2rem;
+            }
+
+            .upload-text {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .upload-name {
+                font-size: 0.8rem;
+                font-weight: 500;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .upload-sub {
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            .resources-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .resource-card {
+                background: var(--panel-bg);
+                border: 1px solid var(--border);
+                padding: 14px 16px;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .resource-card:hover {
+                border-color: var(--border-focus);
+                background: var(--panel-bg-alt);
+            }
+
+            .resource-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .resource-icon {
+                width: 32px;
+                height: 32px;
+                background: var(--border);
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--text-main);
+                flex-shrink: 0;
+                font-size: 1.2rem;
+            }
+
+            .resource-title {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--text-main);
+            }
+
+            .resource-body {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                line-height: 1.5;
+                white-space: pre-wrap;
+                margin-left: 44px;
+            }
+
+            .resource-actions {
+                margin-left: 44px;
+                display: flex;
+                gap: 8px;
+                margin-top: 4px;
+            }
+
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 48px 24px;
+                text-align: center;
+                color: var(--text-muted);
+                background: var(--panel-bg);
+                border: 1px dashed var(--border-focus);
+                border-radius: 12px;
+            }
+
+            .empty-state i {
+                font-size: 32px;
+                margin-bottom: 12px;
+                opacity: 0.5;
+            }
+
+            .empty-state p {
+                font-size: 0.9rem;
+            }
+
+            .input {
+                width: 100%;
+                padding: 10px 12px;
+                border-radius: 8px;
+                background: var(--bg-dark);
+                border: 1px solid var(--border);
+                color: var(--text-main);
+                font-size: 0.9rem;
+                outline: none;
+                transition: border-color 0.2s;
+                font-family: var(--font-family);
+            }
+
+            .input:focus {
+                border-color: var(--accent);
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-label {
+                display: block;
+                font-size: 0.8rem;
+                font-weight: 500;
+                margin-bottom: 6px;
+                color: var(--text-muted);
+            }
+
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.7);
+                backdrop-filter: blur(4px);
+                z-index: 200;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s;
+                padding: 16px;
+            }
+
+            .modal-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .modal {
+                background: var(--bg-modal);
+                border: 1px solid var(--border-focus);
+                border-radius: 12px;
+                width: 100%;
+                max-width: 480px;
+                box-shadow: var(--shadow-modal);
+                transform: translateY(20px) scale(0.98);
+                transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+                display: flex;
+                flex-direction: column;
+                max-height: 90vh;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .modal-wide {
+                max-width: 720px;
+            }
+
+            .modal-overlay.active .modal {
+                transform: translateY(0) scale(1);
+            }
+
+            .modal-header {
+                padding: 16px 20px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--bg-modal);
+                flex-shrink: 0;
+            }
+
+            .modal-body {
+                padding: 20px;
+                overflow-y: auto;
+                flex: 1;
+            }
+
+            .modal-footer {
+                padding: 16px 20px;
+                border-top: 1px solid var(--border);
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                background: var(--bg-modal);
+                flex-shrink: 0;
+            }
+
+            .signin-card {
+                text-align: center;
+                padding: 40px 32px;
+                position: relative;
+            }
+
+            .signin-logo {
+                width: 48px;
+                height: 48px;
+                background: transparent;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 16px;
+                color: white;
+            }
+
+            .signin-btn {
+                width: 100%;
+                padding: 12px;
+                border-radius: 8px;
+                background: #fff;
+                color: #000;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 24px;
+                transition: transform 0.2s;
+            }
+
+            .signin-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .datepicker-wrapper {
+                position: relative;
+            }
+
+            .datepicker-trigger {
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .datepicker-popover {
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                z-index: 210;
+                background: var(--bg-modal);
+                border: 1px solid var(--border-focus);
+                border-radius: 8px;
+                padding: 12px;
+                box-shadow: var(--shadow-modal);
+                width: 280px;
+                display: none;
+            }
+
+            .datepicker-popover.active {
+                display: block;
+            }
+
+            .dp-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+
+            .dp-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+                text-align: center;
+            }
+
+            .dp-day-name {
+                font-size: 0.7rem;
+                color: var(--text-muted);
+                font-weight: 600;
+                padding-bottom: 8px;
+            }
+
+            .dp-day {
+                padding: 6px 0;
+                font-size: 0.85rem;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background 0.2s;
+            }
+
+            .sort-item {
+                padding: 8px 12px;
+                font-size: 0.82rem;
+                font-weight: 500;
+                cursor: pointer;
+                border-radius: 6px;
+                color: var(--text-muted);
+                transition: all 0.15s;
+                text-align: left;
+            }
+
+            .sort-item:hover {
+                background: var(--border);
+                color: var(--text-main);
+            }
+
+            .dp-day:hover:not(.disabled) {
+                background: var(--border);
+            }
+
+            .dp-day.selected {
+                background: var(--accent);
+                color: white;
+                font-weight: 600;
+            }
+
+            .dp-day.disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+
+            .theme-panel {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 320px;
+                max-width: 100%;
+                background: var(--panel-bg);
+                border-left: 1px solid var(--border);
+                padding: 24px;
+                transform: translateX(100%);
+                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+                box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+                overflow-y: auto;
+            }
+
+            .modal-overlay.active .theme-panel {
+                transform: translateX(0);
+            }
+
+            .tp-swatches {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+                margin-top: 12px;
+            }
+
+            .tp-swatch {
+                aspect-ratio: 1;
+                border-radius: 50%;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: transform 0.2s;
+                box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2);
+            }
+
+            .tp-swatch:hover {
+                transform: scale(1.1);
+            }
+
+            .tp-swatch.active {
+                border-color: white;
+                box-shadow: 0 0 0 3px var(--border-focus), inset 0 0 0 2px rgba(0,0,0,0.2);
+            }
+
+            .tp-mode-toggle {
+                display: flex;
+                background: var(--bg-dark);
+                border-radius: 8px;
+                padding: 4px;
+                gap: 4px;
+                margin-top: 12px;
+                border: 1px solid var(--border);
+            }
+
+            .tp-mode-btn {
+                flex: 1;
+                padding: 8px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                color: var(--text-muted);
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .tp-mode-btn.active {
+                background: var(--panel-bg-alt);
+                color: var(--text-main);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+
+            .toast-container {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                z-index: 300;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .toast {
+                background: var(--panel-bg-alt);
+                border: 1px solid var(--border-focus);
+                border-radius: 8px;
+                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                transform: translateX(120%);
+                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+                width: 300px;
+                font-size: 0.85rem;
+            }
+
+            .toast.show {
+                transform: translateX(0);
+            }
+
+            .toast.success {
+                border-left: 3px solid var(--success);
+            }
+
+            .toast.error {
+                border-left: 3px solid var(--danger);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(2px);
+                z-index: 95;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .cp-container {
+                display: flex;
+                gap: 32px;
+                margin-top: 32px;
+                flex: 1;
+                overflow: hidden;
+            }
+
+            .cp-form-area {
+                width: 380px;
+                overflow-y: auto;
+                background: var(--panel-bg);
+                padding: 24px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                flex-shrink: 0;
+            }
+
+            .cp-preview-area {
+                flex: 1;
+                overflow-y: auto;
+                padding: 40px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .cp-a4 {
+                width: 794px;
+                min-height: 1123px;
+                background: #fff;
+                color: #000;
+                padding: 40px;
+                font-family: 'Times New Roman', serif;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                transform-origin: top left;
+            }
+
+            .cp-a4-inner {
+                border: 3px solid #000;
+                padding: 4px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .cp-a4-content {
+                border: 1px solid #000;
+                height: 100%;
+                padding: 36px;
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+            }
+
+            .type-pill {
+                transition: all 0.2s;
+            }
+
+            .type-pill.active[data-type="complaint"] {
+                background: rgba(224,80,80,0.1);
+                color: var(--danger);
+                border-color: var(--danger);
+            }
+
+            .type-pill.active[data-type="request"] {
+                background: rgba(90,156,245,0.1);
+                color: #5a9cf5;
+                border-color: #5a9cf5;
+            }
+
+            .ticket {
+                background: var(--panel-bg);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 12px;
+            }
+
+            .ticket.unread {
+                border-left: 3px solid var(--accent);
+            }
+
+            .ticket-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            }
+
+            .ticket-badge {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+                border-radius: 12px;
+                background: var(--border);
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            .ticket-badge.complaint {
+                background: rgba(224,80,80,0.1);
+                color: var(--danger);
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes viewIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(6px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes viewOut {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                to {
+                    opacity: 0;
+                    transform: translateY(-4px);
+                }
+            }
+
+            .view-entering {
+                animation: viewIn 0.12s ease-out forwards;
+            }
+
+            .view-exiting {
+                animation: viewOut 0.08s ease-in forwards;
+            }
+
+            @keyframes themeFlash {
+                0% {
+                    opacity: 0;
+                }
+
+                30% {
+                    opacity: 0.06;
+                }
+
+                100% {
+                    opacity: 0;
+                }
+            }
+
+            .theme-flash {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 9999;
+                background: var(--accent);
+                animation: themeFlash 0.4s ease-out forwards;
+            }
+
+            :root {
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+
+            .tp-swatch {
+                transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.15s;
+                cursor: pointer;
+            }
+
+            .tp-swatch:hover {
+                transform: scale(1.18) translateY(-2px);
+            }
+
+            .tp-swatch:active {
+                transform: scale(0.9);
+                transition: transform 0.08s ease;
+            }
+
+            .tp-swatch.active {
+                border-color: white !important;
+                box-shadow: 0 0 0 3px var(--accent), inset 0 0 0 2px rgba(0,0,0,0.15);
+                transform: scale(1.15);
+            }
+
+            .tp-preview {
+                margin-top: 24px;
+                border-radius: 10px;
+                overflow: hidden;
+                border: 1px solid var(--border);
+                background: var(--bg-dark);
+            }
+
+            .tp-preview-bar {
+                height: 4px;
+                background: var(--accent);
+                transition: background 0.3s ease;
+            }
+
+            .tp-preview-body {
+                padding: 12px 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tp-preview-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                border-radius: 6px;
+                background: var(--accent);
+                color: #fff;
+                font-size: 0.75rem;
+                font-weight: 600;
+                transition: background 0.3s ease;
+                width: fit-content;
+            }
+
+            .tp-preview-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 8px;
+                border-radius: 12px;
+                background: var(--accent-alpha);
+                color: var(--accent);
+                font-size: 0.7rem;
+                font-family: var(--font-mono);
+                border: 1px solid var(--accent);
+                transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            }
+
+            .tp-preview-sidebar {
+                height: 6px;
+                border-radius: 3px;
+                background: var(--accent-alpha);
+                border: 1px solid var(--accent);
+                transition: background 0.3s ease, border-color 0.3s ease;
+            }
+
+            .tp-preview-label {
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 4px;
+            }
+
+            .tp-swatch.active {
+                border-color: white;
+                box-shadow: 0 0 0 3px var(--accent), inset 0 0 0 2px rgba(0,0,0,0.2);
+                transform: scale(1.15);
+            }
+
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .spinner {
+                animation: spin 1s linear infinite;
+                display: inline-block;
+            }
+
+            @media (max-width: 1024px) {
+                .content-grid {
+                    gap: 48px;
+                }
+
+                .workspace-content {
+                    padding: 40px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .desktop-toggle {
+                    display: none !important;
+                }
+
+                .mobile-toggle {
+                    display: flex !important;
+                }
+
+                .sidebar {
+                    position: fixed;
+                    left: -260px;
+                    height: 100dvh;
+                    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+                }
+
+                .sidebar.mobile-open {
+                    transform: translateX(260px);
+                }
+
+                .sidebar.collapsed {
+                    width: 260px;
+                    left: -260px;
+                }
+
+                .sidebar-overlay {
+                    display: block;
+                    pointer-events: none;
+                }
+
+                .mobile-header {
+                    display: flex;
+                }
+
+                .workspace-content {
+                    padding: 24px;
+                }
+
+                .workspace-header h1 {
+                    font-size: 1.75rem;
+                }
+
+                .quick-actions .btn {
+                    flex: 1 1 calc(50% - 6px);
+                }
+
+                .toast-container {
+                    bottom: 16px;
+                    right: 16px;
+                    left: 16px;
+                }
+
+                .toast {
+                    width: auto;
+                }
+
+                .cp-container {
+                    flex-direction: column;
+                }
+
+                .cp-form-area {
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+            <symbol id="ic-home" viewBox="0 0 24 24">
+                <path d="M5 12l-2 0l9-9l9 9l-2 0"/>
+                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>
+                <path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+            </symbol>
+            <symbol id="ic-menu" viewBox="0 0 24 24">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="12" x2="20" y2="12"/>
+                <line x1="4" y1="18" x2="20" y2="18"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-user" viewBox="0 0 24 24">
+                <circle cx="12" cy="7" r="4"/>
+                <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+            </symbol>
+            <symbol id="ic-download" viewBox="0 0 24 24">
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                <polyline points="7 11 12 16 17 11"/>
+                <line x1="12" y1="4" x2="12" y2="16"/>
+            </symbol>
+            <symbol id="ic-palette" viewBox="0 0 24 24">
+                <path d="M12 21a9 9 0 0 1 0-18c4.97 0 9 3.582 9 8 0 1.065-.14 2.016-.534 2.82C19.988 15.17 18.7 16 17 16h-1.5c-.8 0-1.5.672-1.5 1.5a1.5 1.5 0 0 0 .44 1.06A1.5 1.5 0 0 1 12 21z"/>
+                <circle cx="7.5" cy="10.5" r="1"/>
+                <circle cx="12" cy="7.5" r="1"/>
+                <circle cx="16.5" cy="10.5" r="1"/>
+            </symbol>
+            <symbol id="ic-inbox" viewBox="0 0 24 24">
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+            </symbol>
+            <symbol id="ic-bell" viewBox="0 0 24 24">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </symbol>
+            <symbol id="ic-bell-ringing" viewBox="0 0 24 24">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <line x1="2" y1="2" x2="6" y2="6"/>
+                <line x1="22" y1="2" x2="18" y2="6"/>
+            </symbol>
+            <symbol id="ic-bell-off" viewBox="0 0 24 24">
+                <line x1="1" y1="1" x2="23" y2="23"/>
+                <path d="M17.47 17.47A6 6 0 0 0 6 8a6 6 0 0 0-.7 3"/>
+                <path d="M10.7 21.7a2 2 0 0 0 2.6 0"/>
+                <path d="M21 21H3s1-1 2-5"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-book" viewBox="0 0 24 24">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </symbol>
+            <symbol id="ic-alert-circle" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </symbol>
+            <symbol id="ic-alert-circle-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </symbol>
+            <symbol id="ic-filter" viewBox="0 0 24 24">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </symbol>
+            <symbol id="ic-chevron-down" viewBox="0 0 24 24">
+                <polyline points="6 9 12 15 18 9"/>
+            </symbol>
+            <symbol id="ic-chevron-left" viewBox="0 0 24 24">
+                <polyline points="15 18 9 12 15 6"/>
+            </symbol>
+            <symbol id="ic-chevron-right" viewBox="0 0 24 24">
+                <polyline points="9 18 15 12 9 6"/>
+            </symbol>
+            <symbol id="ic-calendar" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </symbol>
+            <symbol id="ic-circle-x" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </symbol>
+            <symbol id="ic-moon" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </symbol>
+            <symbol id="ic-sun" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </symbol>
+            <symbol id="ic-logout" viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </symbol>
+            <symbol id="ic-upload" viewBox="0 0 24 24">
+                <polyline points="16 16 12 12 8 16"/>
+                <line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </symbol>
+            <symbol id="ic-link" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </symbol>
+            <symbol id="ic-pencil" viewBox="0 0 24 24">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </symbol>
+            <symbol id="ic-check" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </symbol>
+            <symbol id="ic-loader" viewBox="0 0 24 24">
+                <line x1="12" y1="2" x2="12" y2="6"/>
+                <line x1="12" y1="18" x2="12" y2="22"/>
+                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/>
+                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+                <line x1="2" y1="12" x2="6" y2="12"/>
+                <line x1="18" y1="12" x2="22" y2="12"/>
+                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
+                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+            </symbol>
+            <symbol id="ic-files" viewBox="0 0 24 24">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+            </symbol>
+            <symbol id="ic-file-text" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+            </symbol>
+            <symbol id="ic-notebook" viewBox="0 0 24 24">
+                <path d="M2 6h4"/>
+                <path d="M2 10h4"/>
+                <path d="M2 14h4"/>
+                <path d="M2 18h4"/>
+                <rect x="6" y="4" width="16" height="16" rx="2"/>
+                <line x1="10" y1="4" x2="10" y2="20"/>
+            </symbol>
+            <symbol id="ic-clipboard" viewBox="0 0 24 24">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </symbol>
+            <symbol id="ic-folder-open" viewBox="0 0 24 24">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                <line x1="12" y1="11" x2="12" y2="17"/>
+                <line x1="9" y1="14" x2="15" y2="14"/>
+            </symbol>
+            <symbol id="ic-info-circle" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-books" viewBox="0 0 24 24">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <path d="M2 10h4"/>
+                <path d="M2 14h4"/>
+            </symbol>
+            <symbol id="ic-clock" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </symbol>
+            <symbol id="ic-arrow-back" viewBox="0 0 24 24">
+                <polyline points="9 14 4 9 9 4"/>
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </symbol>
+        </svg>
+        <div class="app-container">
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-header-top">
+                        <div class="brand">
+                            <div class="brand-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                    <path d="M9 12l2.25 2.25L21 4"/>
+                                </svg>
+                            </div>
+                            <span class="brand-text">TaskBoard</span>
+                        </div>
+                        <button type="button" class="btn btn-ghost btn-icon desktop-toggle" onclick="toggleDesktopSidebar()">
+                            <svg class="icon">
+                                <use href="#ic-menu"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="subject-list" id="subjectList">
+                    <div id="sidebarActivePill"></div>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="user-profile" id="userProfileBtn" onclick="handleProfileClick()">
+                        <div class="avatar" id="sidebarAvatar">
+                            <svg class="icon">
+                                <use href="#ic-user"/>
+                            </svg>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name" id="sidebarUserName">Sign In</div>
+                            <div class="user-role" id="sidebarUserRole">Guest</div>
+                        </div>
+                    </div>
+                    <div class="sidebar-actions">
+                        <button type="button" class="icon-btn" id="installAppBtn" onclick="triggerInstallPrompt()" style="display:none;" title="Install App">
+                            <svg class="icon">
+                                <use href="#ic-download"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn" onclick="openThemeOverlay()" title="Appearance">
+                            <svg class="icon">
+                                <use href="#ic-palette"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn hidden" id="adminInboxBtn" onclick="openInboxModal()" title="Inbox">
+                            <svg class="icon">
+                                <use href="#ic-inbox"/>
+                            </svg>
+                            <span class="badge hidden" id="inboxBadge"></span>
+                        </button>
+                        <button type="button" class="icon-btn" id="notifBellBtn" onclick="handleNotifBell()" title="Notifications">
+                            <svg class="icon" id="notifBellIcon">
+                                <use href="#ic-bell"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            <main class="workspace">
+                <div class="mobile-header">
+                    <button type="button" class="menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                        <div class="brand-icon" style="width: 22px; height: 22px;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                <path d="M9 12l2.25 2.25L21 4"/>
+                            </svg>
+                        </div>
+                        <span style="font-weight: 600; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--text-main);">TaskBoard</span>
+                    </div>
+                </div>
+                <div class="workspace-content" id="workspaceContent">
+                    <div id="welcomeView" class="hidden" style="display: flex; flex-direction: column; flex: 1;"></div>
+                    <div id="subjectView" class="hidden">
+                        <div class="workspace-header">
+                            <h1 id="subjectTitle">Subject Name</h1>
+                            <div class="subject-meta">
+                                <span>
+                                    <svg class="icon">
+                                        <use href="#ic-user"/>
+                                    </svg>
+                                    <span id="subjectTeacher">Teacher Name</span>
+                                </span>
+                                <div class="meta-divider"></div>
+                                <span class="mono" id="subjectProgress">0/0 (0%)</span>
+                            </div>
+                        </div>
+                        <div class="quick-actions" id="quickActions">
+                            <button type="button" class="btn btn-primary hidden" id="adminAddAsgBtn" onclick="openAddAssignmentModal()">
+                                <svg class="icon">
+                                    <use href="#ic-plus"/>
+                                </svg>
+                                Add Assignment
+                        
+                            </button>
+                            <button type="button" class="btn btn-secondary hidden" id="adminAddSylBtn" onclick="openAddSyllabusModal()">
+                                <svg class="icon">
+                                    <use href="#ic-book"/>
+                                </svg>
+                                Add Topic
+                        
+                            </button>
+                            <button type="button" class="btn btn-secondary hidden" id="adminAddNoteBtn" onclick="openAddNoteModal()">
+                                <svg class="icon">
+                                    <use href="#ic-edit"/>
+                                </svg>
+                                Add Note
+                        
+                            </button>
+                            <button type="button" class="btn btn-ghost" onclick="openComplaintModal()" id="studentReportBtn">
+                                <svg class="icon">
+                                    <use href="#ic-alert-circle"/>
+                                </svg>
+                                Report Issue
+                        
+                            </button>
+                        </div>
+                        <div class="content-grid">
+                            <div>
+                                <div class="section-title">
+                                    <span>Timeline</span>
+                                    <div style="position:relative;">
+                                        <button type="button" class="btn btn-ghost text-xs" onclick="toggleSortDropdown(event)" style="padding:4px 8px;">
+                                            <svg class="icon">
+                                                <use href="#ic-filter"/>
+                                            </svg>
+                                            <span id="sortLabel">Due Date</span>
+                                            <svg class="icon">
+                                                <use href="#ic-chevron-down"/>
+                                            </svg>
+                                        </button>
+                                        <div class="datepicker-popover" id="sortDropMenu" style="right:0; left:auto; width:150px; padding:6px;">
+                                            <div class="sort-item" onclick="setSort('due_date')">Due Date</div>
+                                            <div class="sort-item" onclick="setSort('title')">Name</div>
+                                            <div class="sort-item" onclick="setSort('status')">Status</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="assignmentList" class="timeline"></div>
+                            </div>
+                            <div>
+                                <div class="section-title">Resources</div>
+                                <div id="resourcesList" class="resources-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="noticesView" class="hidden">
+                        <div class="workspace-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
+                            <div>
+                                <h1>General Notices</h1>
+                                <div class="subject-meta">Class announcements &amp;files</div>
+                            </div>
+                            <button type="button" id="adminAddNoticeBtn" class="btn btn-primary hidden" onclick="openAddNoticeModal()">
+                                <svg class="icon">
+                                    <use href="#ic-plus"/>
+                                </svg>
+                                Post Notice
+                        
+                            </button>
+                        </div>
+                        <div id="noticesList" class="resources-list" style="margin-top: 32px; max-width: 900px;"></div>
+                    </div>
+                    <div id="coverPageView" class="hidden" style="display:flex; flex-direction:column; flex:1; overflow: hidden;">
+                        <div class="workspace-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 0; flex-shrink: 0;">
+                            <div>
+                                <h1>Cover Page</h1>
+                                <div class="subject-meta">Generate Arka Jain University format</div>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="downloadCoverPage()">
+                                <svg class="icon">
+                                    <use href="#ic-download"/>
+                                </svg>
+                                Download PNG
+                        
+                            </button>
+                        </div>
+                        <div class="cp-container">
+                            <div class="cp-form-area">
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="input" oninput="updateCP('cp-val-name',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Enrollment No</label>
+                                    <input type="text" class="input" oninput="updateCP('cp-val-enroll',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Roll No</label>
+                                    <input type="text" class="input" oninput="updateCP('cp-val-roll',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Program &amp;Branch</label>
+                                    <input type="text" class="input" placeholder="e.g. B.Tech CSE" oninput="updateCP('cp-val-prog',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Semester &amp;Section</label>
+                                    <input type="text" class="input" placeholder="e.g. 4th Sem, Sec A" oninput="updateCP('cp-val-sem',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Subject</label>
+                                    <input type="text" class="input" id="cp-input-subj" oninput="updateCP('cp-val-subj',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Submitted to</label>
+                                    <input type="text" class="input" id="cp-input-teacher" oninput="updateCP('cp-val-submit',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Assignment No</label>
+                                    <input type="text" class="input" oninput="updateCP('cp-val-asgno',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="text" class="input" oninput="updateCP('cp-val-date',this.value)">
+                                </div>
+                            </div>
+                            <div class="cp-preview-area">
+                                <div class="cp-a4" id="coverPagePreview">
+                                    <div class="cp-a4-inner">
+                                        <div class="cp-a4-content">
+                                            <div style="text-align:center; margin-bottom:32px;">
+                                                <div style="display:flex; justify-content:center; align-items:center; gap:16px; margin-bottom:20px;">
+                                                    <div style="background:#2b2b5c;color:#fff;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;">JGI</div>
+                                                    <div style="text-align:left;">
+                                                        <div style="color:#2b2b5c;font-size:26px;font-weight:900;line-height:1;">
+                                                            ARKA <span style="color:#c00;">JAIN</span>
+                                                        </div>
+                                                        <div style="color:#2b2b5c;font-size:22px;font-weight:700;line-height:1;">University</div>
+                                                        <div style="font-size:10px;font-weight:700;">Jharkhand</div>
+                                                    </div>
+                                                </div>
+                                                <div style="font-size:20px;margin-bottom:6px;">School of Engineering &amp;IT</div>
+                                                <div style="font-size:18px;margin-bottom:12px;">Department of Computer Science &amp;IT</div>
+                                                <div style="font-size:18px;font-weight:700;">
+                                                    Assignment No: <span id="cp-val-asgno" style="font-weight:400;"></span>
+                                                </div>
+                                            </div>
+                                            <div style="display:flex; flex-direction:column; gap:14px; font-size:17px; margin-bottom:auto;">
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Name:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-name"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Enrollment No:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-enroll"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Roll No:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-roll"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Program &amp;Branch:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-prog"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Sem &amp;Section:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-sem"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Subject:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-subj"></div>
+                                                </div>
+                                                <div style="display:flex;">
+                                                    <div style="width:180px;">Submitted to:</div>
+                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-submit"></div>
+                                                </div>
+                                            </div>
+                                            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:48px; font-size:17px;">
+                                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                                    <div style="margin-bottom:50px;">Student's Signature</div>
+                                                    <div style="display:flex;gap:8px;">
+                                                        <div>Date:</div>
+                                                        <div style="border-bottom:1px dashed #000;min-width:140px;" id="cp-val-date"></div>
+                                                    </div>
+                                                </div>
+                                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+                                                    <div style="margin-bottom:50px;">Teacher's Signature</div>
+                                                    <div style="border:2px solid #556b2f; padding:10px 20px; font-size:22px; font-weight:bold; min-width:140px;">Grade:</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <div id="themeOverlay" class="modal-overlay" onclick="closeOnOutside(event,'themeOverlay')">
+            <div class="theme-panel" id="themePanel" onclick="event.stopPropagation()">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <h3 style="font-size:1.1rem; font-weight:600;">Appearance</h3>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('themeOverlay')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="form-label">Mode</div>
+                <div class="tp-mode-toggle">
+                    <button type="button" class="tp-mode-btn" id="tpDarkBtn" onclick="setColorMode('dark')">
+                        <svg class="icon">
+                            <use href="#ic-moon"/>
+                        </svg>
+                        Dark
+                    </button>
+                    <button type="button" class="tp-mode-btn" id="tpLightBtn" onclick="setColorMode('light')">
+                        <svg class="icon">
+                            <use href="#ic-sun"/>
+                        </svg>
+                        Light
+                    </button>
+                </div>
+                <div class="form-label" style="margin-top:24px;">Accent Color</div>
+                <div class="tp-swatches" id="tpSwatches"></div>
+                <div class="form-label" style="margin-top:24px;">Preview</div>
+                <div class="tp-preview">
+                    <div class="tp-preview-bar"></div>
+                    <div class="tp-preview-body">
+                        <div>
+                            <div class="tp-preview-label">Active Item</div>
+                            <div class="tp-preview-sidebar"></div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <div class="tp-preview-btn">
+                                <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;" viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Button
+                        
+                            </div>
+                            <div class="tp-preview-pill">Active</div>
+                        </div>
+                        <div style="height:1px; background:var(--border);"></div>
+                        <div style="display:flex; gap:6px;">
+                            <div style="flex:1; height:8px; border-radius:4px; background:var(--accent); opacity:0.9; transition:background 0.3s;"></div>
+                            <div style="flex:2; height:8px; border-radius:4px; background:var(--border);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="signInModal" class="modal-overlay" onclick="closeOnOutside(event,'signInModal')" style="display:flex; align-items:center; padding:16px;">
+            <div class="modal signin-card" style="margin:auto; width:100%; max-width:400px; transform:none;">
+                <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('signInModal')" style="position:absolute; top:16px; right:16px; z-index:50;">
+                    <svg class="icon">
+                        <use href="#ic-x"/>
+                    </svg>
+                </button>
+                <div class="signin-logo">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        <path d="M9 12l2.25 2.25L21 4"/>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 8px;">Welcome back</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px;">Sign in to track assignments, upload answers, and collaborate.</p>
+                <button type="button" class="signin-btn" onclick="signInWithGoogle()" id="googleSignInBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+            
+                </button>
+            </div>
+        </div>
+        <div id="uploadModal" class="modal-overlay" onclick="closeOnOutside(event,'uploadModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Upload Answer</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('uploadModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="uploadAsgId">
+                    <div class="form-group">
+                        <label class="form-label">File (PDF/Word/Image, max 50MB)</label>
+                        <input type="file" id="uploadFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                    </div>
+                    <div style="text-align:center; margin:16px 0; color:var(--text-muted); font-size:0.8rem;">— OR —</div>
+                    <div class="form-group">
+                        <label class="form-label">External Link (Drive, Docs, etc.)</label>
+                        <input type="url" id="uploadUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('uploadModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitUpload()" id="submitUploadBtn">Upload</button>
+                </div>
+            </div>
+        </div>
+        <div id="noticeModal" class="modal-overlay" onclick="closeOnOutside(event,'noticeModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="noticeModalTitle">Post Notice</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('noticeModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="noticeId">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" id="noticeTitle" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea id="noticeBody" class="input" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">File URL (Optional)</label>
+                        <input type="url" id="noticeFileUrl" class="input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('noticeModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNotice()" id="saveNoticeBtn">Post</button>
+                </div>
+            </div>
+        </div>
+        <div id="assignmentModal" class="modal-overlay" onclick="closeOnOutside(event,'assignmentModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="asgModalTitle">Add Assignment</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('assignmentModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="asgId">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="asgTitle" class="input" placeholder="e.g. Chapter 3 Exercises">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <select id="asgSubject" class="input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <div class="datepicker-wrapper" id="dpWrapper">
+                            <div class="input datepicker-trigger" onclick="toggleDatePicker(event)" id="dpTrigger">
+                                <span id="dpDisplay">No due date</span>
+                                <svg class="icon">
+                                    <use href="#ic-calendar"/>
+                                </svg>
+                            </div>
+                            <input type="hidden" id="asgDueDate">
+                            <div class="datepicker-popover" id="dpPopover" onclick="event.stopPropagation()">
+                                <div class="dp-header">
+                                    <button type="button" class="btn btn-ghost btn-icon" onclick="changeMonth(-1)">
+                                        <svg class="icon">
+                                            <use href="#ic-chevron-left"/>
+                                        </svg>
+                                    </button>
+                                    <strong id="dpMonthYear" class="mono text-xs"></strong>
+                                    <button type="button" class="btn btn-ghost btn-icon" onclick="changeMonth(1)">
+                                        <svg class="icon">
+                                            <use href="#ic-chevron-right"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="dp-grid" id="dpGrid"></div>
+                                <div style="margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">
+                                    <button type="button" class="btn btn-ghost text-xs" style="width:100%; justify-content:center;" onclick="clearDueDate()">
+                                        <svg class="icon">
+                                            <use href="#ic-circle-x"/>
+                                        </svg>
+                                        No Due Date
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Remarks (Optional)</label>
+                        <input type="text" id="asgRemarks" class="input" placeholder="e.g. Submit hardcopy as well">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Question File URL</label>
+                        <input type="url" id="asgQuestionUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content:space-between;">
+                    <button type="button" class="btn btn-danger hidden" id="deleteAsgBtn" onclick="deleteAssignment()">
+                        <svg class="icon">
+                            <use href="#ic-trash"/>
+                        </svg>
+                        Delete
+                
+                    </button>
+                    <div style="display:flex;gap:10px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('assignmentModal')">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveAssignment()" id="saveAsgBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="syllabusModal" class="modal-overlay" onclick="closeOnOutside(event,'syllabusModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="sylModalTitle">Add Topic</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('syllabusModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="sylId">
+                    <div class="form-group">
+                        <label class="form-label">Unit / Topic Title</label>
+                        <input type="text" id="sylTitle" class="input" placeholder="e.g. Unit 1 – Limits &amp; Derivatives">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description / Content</label>
+                        <textarea id="sylBody" class="input" rows="5" placeholder="List topics, sub-topics, outcomes..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reference Link (Optional)</label>
+                        <input type="url" id="sylUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('syllabusModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSyllabus()" id="saveSylBtn">Save</button>
+                </div>
+            </div>
+        </div>
+        <div id="noteModal" class="modal-overlay" onclick="closeOnOutside(event,'noteModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="noteModalTitle">Add Note</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('noteModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="noteId">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="noteTitle" class="input" placeholder="e.g. Week 3 Lecture Notes">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content</label>
+                        <textarea id="noteBody" class="input" rows="6" placeholder="Notes, key points, summaries..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">File / Drive Link (Optional)</label>
+                        <input type="url" id="noteUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('noteModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNote()" id="saveNoteBtn">Save</button>
+                </div>
+            </div>
+        </div>
+        <div id="complaintModal" class="modal-overlay" onclick="closeOnOutside(event,'complaintModal')">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Report Issue / Request</h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('complaintModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" style="display:flex;gap:8px;margin-bottom:16px;">
+                        <button type="button" class="btn btn-secondary type-pill" data-type="complaint" onclick="selectComplaintType('complaint')">Complaint</button>
+                        <button type="button" class="btn btn-secondary type-pill" data-type="request" onclick="selectComplaintType('request')">Request</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <select id="cSubject" class="input" onchange="populateComplaintRef()"></select>
+                    </div>
+                    <div class="form-group" id="cRefGroup" style="display:none;">
+                        <label class="form-label">Reference</label>
+                        <select id="cRef" class="input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="cCategory" class="input">
+                            <option value="wrong_info">Wrong Info</option>
+                            <option value="missing_file">Missing File</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" id="cTitle" class="input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Details</label>
+                        <textarea id="cBody" class="input" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('complaintModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitComplaint()" id="submitComplaintBtn">Submit</button>
+                </div>
+            </div>
+        </div>
+        <div id="inboxModal" class="modal-overlay" onclick="closeOnOutside(event,'inboxModal')">
+            <div class="modal modal-wide">
+                <div class="modal-header">
+                    <h2>
+                        Admin Inbox <span id="inboxCount" style="font-size:0.8rem;color:var(--text-muted);font-weight:normal;margin-left:8px;"></span>
+                    </h2>
+                    <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('inboxModal')">
+                        <svg class="icon">
+                            <use href="#ic-x"/>
+                        </svg>
+                    </button>
+                </div>
+                <div style="padding:12px 20px; border-bottom:1px solid var(--border); display:flex; gap:8px; background:var(--bg-dark);">
+                    <button type="button" class="btn text-xs btn-primary" data-filter="all" onclick="setInboxFilter('all')">All</button>
+                    <button type="button" class="btn text-xs btn-secondary" data-filter="open" onclick="setInboxFilter('open')">Open</button>
+                    <button type="button" class="btn text-xs btn-secondary" data-filter="resolved" onclick="setInboxFilter('resolved')">Resolved</button>
+                </div>
+                <div class="modal-body" id="inboxList" style="padding:16px;"></div>
+            </div>
+        </div>
+        <div id="profileModal" class="modal-overlay" onclick="closeOnOutside(event,'profileModal')" style="display:flex; align-items:center; padding:16px;">
+            <div class="modal" style="margin:auto; width:100%; max-width:320px; text-align: center; padding: 32px 24px; transform:none;">
+                <button type="button" class="btn btn-ghost btn-icon" onclick="closeModal('profileModal')" style="position:absolute; top:12px; right:12px; z-index:50;">
+                    <svg class="icon">
+                        <use href="#ic-x"/>
+                    </svg>
+                </button>
+                <div class="avatar" id="profileAvatarLarge" style="width: 64px; height: 64px; font-size: 1.5rem; margin: 0 auto 16px;"></div>
+                <h3 id="profileNameModal" style="font-size: 1.2rem; margin-bottom: 4px;">Name</h3>
+                <p id="profileEmailModal" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">
+                    <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="98fdf5f9f1f4d8fde0f9f5e8f4fdb6fbf7f5">[email &#160;protected]</a>
+                </p>
+                <button type="button" class="btn btn-danger" style="width: 100%; justify-content: center;" onclick="signOut()">
+                    <svg class="icon">
+                        <use href="#ic-logout"/>
+                    </svg>
+                    Sign Out
+            
+                </button>
+            </div>
+        </div>
+        <div id="toastContainer" class="toast-container"></div>
+        <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+        <script>
+            const API_BASE_URL = 'https://nullyex-worker.nulllyex.workers.dev';
+            const ADMIN_EMAILS = ['farhankhalid626@gmail.com', 'gissamrit@gmail.com'];
+            const VAPID_PUBLIC_KEY = 'BBy1dbu2GE1ODuR0WGCBjsTgQ3PJWuOyYTG5zdz9BCf_dON4mAbqN3uhqgCFHTt6S0My5Txub8NU_ptNjn_u1aA';
+
+            let supabaseClient;
+            try {
+                if (window.supabase) {
+                    supabaseClient = window.supabase.createClient('https://gncrvvtwmluowyiofpqy.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduY3J2dnR3bWx1b3d5aW9mcHF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Mzc4MDgsImV4cCI6MjA4OTMxMzgwOH0.FsdFjmR-vYw2mLztbnmonG1gYJjIYIVFWi-1XaPVOLQ', {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Supabase init error:', e);
+            }
+
+            const SUBJECTS = [{
+                id: 'sub_1',
+                name: 'Engineering Mathematics\u2013II',
+                teacher: 'Prof. Deepa Mandal'
+            }, {
+                id: 'sub_2',
+                name: 'Engineering Chemistry',
+                teacher: 'Dr. ChandraPrabha Sahu'
+            }, {
+                id: 'sub_3',
+                name: 'Programming with Python',
+                teacher: 'IBM SUBJECT EXPERT'
+            }, {
+                id: 'sub_4',
+                name: 'English for Skill Enhancement',
+                teacher: 'Dr. Monika Singh'
+            }, {
+                id: 'sub_5',
+                name: 'Universal Human Values',
+                teacher: 'Dr Binod Kumar Choudhary'
+            }, {
+                id: 'sub_6',
+                name: 'Manufacturing Practice',
+                teacher: 'Dr. Shailendra kr Prashad'
+            }, {
+                id: 'sub_7',
+                name: 'Constitution Of India',
+                teacher: 'Dr. Prem Nath Suman'
+            }, {
+                id: 'sub_8',
+                name: 'Engineering Chemistry Lab',
+                teacher: 'Mr. Abhijit Mandal',
+                isLab: true
+            }, {
+                id: 'sub_9',
+                name: 'Programming with Python Lab',
+                teacher: 'IBM SUBJECT EXPERT',
+                isLab: true
+            }, {
+                id: 'sub_10',
+                name: 'Design Thinking & Idea Lab',
+                teacher: 'Mr. Santosh Kumar Sah',
+                isLab: true
+            }, {
+                id: 'sub_11',
+                name: 'Engineering Workshop',
+                teacher: 'Mr. Jai Narayan',
+                isLab: true
+            }, {
+                id: 'sub_12',
+                name: 'English Language & Comm. Lab',
+                teacher: 'Dr. Monika Singh',
+                isLab: true
+            }];
+
+            const state = {
+                user: null,
+                isAdmin: false,
+                assignments: [],
+                syllabus: [],
+                notes: [],
+                notices: [],
+                currentView: 'home',
+                currentSubjectId: null,
+                sortBy: 'due_date',
+                theme: localStorage.getItem('app_theme') || 'default',
+                colorMode: localStorage.getItem('app_color_mode') || 'dark',
+                dpCurrentMonth: new Date().getMonth(),
+                dpCurrentYear: new Date().getFullYear()
+            };
+
+            function getInitials(name, email) {
+                if (name) {
+                    const p = name.trim().split(/\s+/);
+                    return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : p[0].substring(0, 2).toUpperCase();
+                }
+                return email ? email.substring(0, 2).toUpperCase() : '??';
+            }
+            function formatDate(ds) {
+                if (!ds)
+                    return '';
+                const d = new Date(ds);
+                return new Date(d.getTime() + Math.abs(d.getTimezoneOffset() * 60000)).toLocaleDateString('en-IN', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+            function getDaysDiff(ds) {
+                if (!ds)
+                    return 999;
+                const due = new Date(ds);
+                const dl = new Date(due.getTime() + Math.abs(due.getTimezoneOffset() * 60000));
+                dl.setHours(23, 59, 59, 999);
+                return Math.ceil((dl - new Date()) / (1000 * 60 * 60 * 24));
+            }
+            function showToast(message, type='success') {
+                const c = document.getElementById('toastContainer');
+                const t = document.createElement('div');
+                t.className = `toast ${type}`;
+                t.innerHTML = `${type === 'success' ? '<svg class="icon icon-xl" style="color:var(--success);font-size:20px;flex-shrink:0;"><use href="#ic-check-circle"/></svg>' : '<svg class="icon icon-xl" style="color:var(--danger);font-size:20px;flex-shrink:0;"><use href="#ic-alert-circle-filled"/></svg>'}
+                <div>${message}</div>`;
+                c.appendChild(t);
+                setTimeout( () => t.classList.add('show'), 10);
+                setTimeout( () => {
+                    t.classList.remove('show');
+                    setTimeout( () => t.remove(), 300);
+                }
+                , 3500);
+            }
+
+            function openModal(id) {
+                const el = document.getElementById(id);
+                if (el)
+                    el.classList.add('active');
+            }
+            function closeModal(id) {
+                const el = document.getElementById(id);
+                if (el)
+                    el.classList.remove('active');
+                if (id === 'assignmentModal')
+                    closeDatePicker();
+            }
+            function closeOnOutside(e, id) {
+                if (e.target.id === id)
+                    closeModal(id);
+            }
+
+            document.addEventListener('click', function(e) {
+                const sortMenu = document.getElementById('sortDropMenu');
+                if (sortMenu && !sortMenu.contains(e.target)) {
+                    sortMenu.classList.remove('active');
+                }
+
+                const dpWrapper = document.getElementById('dpWrapper');
+                if (dpWrapper && !dpWrapper.contains(e.target)) {
+                    closeDatePicker();
+                }
+            });
+
+            async function apiFetch(endpoint, method='GET', data=null) {
+                const controller = new AbortController();
+                const timeout = setTimeout( () => controller.abort(), 5000);
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: controller.signal
+                };
+
+                if (method === 'POST' || method === 'PATCH' || method === 'DELETE') {
+                    try {
+                        const {data: {session}} = await supabaseClient.auth.getSession();
+                        if (session?.access_token) {
+                            options.headers['Authorization'] = `Bearer ${session.access_token}`;
+                        }
+                    } catch (e) {}
+
+                    if (data) {
+                        let token = '';
+                        try {
+                            if (window.turnstile)
+                                token = window.turnstile.getResponse() || '';
+                        } catch (e) {}
+                        options.body = JSON.stringify({
+                            turnstileToken: token,
+                            data
+                        });
+                    }
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                    clearTimeout(timeout);
+                    if (window.turnstile) {
+                        try {
+                            window.turnstile.reset();
+                        } catch (e) {}
+                    }
+                    if (!res.ok) {
+                        const errText = await res.text();
+                        throw new Error(errText || `API error ${res.status}`);
+                    }
+                    const text = await res.text();
+                    return text ? JSON.parse(text) : null;
+                } catch (err) {
+                    clearTimeout(timeout);
+                    throw err;
+                }
+            }
+
+            async function checkAuth() {
+                if (!supabaseClient)
+                    return;
+                try {
+                    const {data: {session}} = await supabaseClient.auth.getSession();
+                    updateAuthState(session);
+                    supabaseClient.auth.onAuthStateChange( (_, session) => updateAuthState(session));
+                } catch (e) {}
+            }
+            function updateAuthState(session) {
+                state.user = session?.user || null;
+                state.isAdmin = ADMIN_EMAILS.includes(state.user?.email);
+                updateSidebarFooter();
+                renderAdminControls();
+                if (state.isAdmin)
+                    fetchUnreadCount();
+            }
+            async function signInWithGoogle() {
+                if (!supabaseClient) {
+                    showToast('Service unavailable', 'error');
+                    return;
+                }
+                try {
+                    const {error} = await supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin
+                        }
+                    });
+                    if (error)
+                        throw error;
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
+            }
+            async function signOut() {
+                if (!supabaseClient)
+                    return;
+                await unsubscribePush();
+                await supabaseClient.auth.signOut();
+                closeModal('profileModal');
+                showToast('Signed out');
+            }
+            function requireAuth(cb) {
+                state.user ? cb() : openModal('signInModal');
+            }
+
+            const ACCENTS = [{
+                id: 'default',
+                name: 'Mono',
+                color: '#f3f3f6'
+            }, {
+                id: 'midnight',
+                name: 'Cobalt',
+                color: '#5a9cf5'
+            }, {
+                id: 'forest',
+                name: 'Emerald',
+                color: '#50c878'
+            }, {
+                id: 'ocean',
+                name: 'Teal',
+                color: '#40c8c0'
+            }, {
+                id: 'berry',
+                name: 'Rose',
+                color: '#d870e8'
+            }, {
+                id: 'violet',
+                name: 'Violet',
+                color: '#a070f0'
+            }, {
+                id: 'royal',
+                name: 'Amber',
+                color: '#f0b830'
+            }, {
+                id: 'sunset',
+                name: 'Coral',
+                color: '#f07050'
+            }, {
+                id: 'coffee',
+                name: 'Warm',
+                color: '#e09050'
+            }, {
+                id: 'slate',
+                name: 'Slate',
+                color: '#88aacc'
+            }];
+            function initThemes() {
+                document.documentElement.setAttribute('data-theme', state.theme);
+                document.documentElement.setAttribute('data-mode', state.colorMode);
+                const grid = document.getElementById('tpSwatches');
+                if (grid) {
+                    grid.innerHTML = '';
+                    ACCENTS.forEach(a => {
+                        const btn = document.createElement('div');
+                        btn.className = `tp-swatch ${a.id === state.theme ? 'active' : ''}`;
+                        btn.style.background = a.color;
+                        btn.title = a.name;
+                        btn.onclick = () => setAccent(a.id);
+                        grid.appendChild(btn);
+                    }
+                    );
+                }
+                const dBtn = document.getElementById('tpDarkBtn');
+                const lBtn = document.getElementById('tpLightBtn');
+                if (dBtn)
+                    dBtn.classList.toggle('active', state.colorMode === 'dark');
+                if (lBtn)
+                    lBtn.classList.toggle('active', state.colorMode === 'light');
+                syncThemeColor();
+            }
+            function flashTheme() {
+                const el = document.createElement('div');
+                el.className = 'theme-flash';
+                document.body.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            }
+            function setAccent(id) {
+                state.theme = id;
+                localStorage.setItem('app_theme', id);
+                document.documentElement.setAttribute('data-theme', id);
+                initThemes();
+                flashTheme();
+            }
+            function setColorMode(mode) {
+                state.colorMode = mode;
+                localStorage.setItem('app_color_mode', mode);
+                document.documentElement.setAttribute('data-mode', mode);
+                initThemes();
+                flashTheme();
+            }
+            function openThemeOverlay() {
+                initThemes();
+                openModal('themeOverlay');
+            }
+            function syncThemeColor() {
+                const meta = document.getElementById('themeColorMeta');
+                if (meta)
+                    meta.content = state.colorMode === 'light' ? '#f8f8f8' : '#0a0a0a';
+            }
+
+            function trackPillAnimation() {
+                let start = performance.now();
+                function step(time) {
+                    const activeEl = document.querySelector('.subject.active');
+                    if (activeEl)
+                        movePill(activeEl, true);
+                    if (time - start < 350) {
+                        requestAnimationFrame(step);
+                    } else {
+                        if (activeEl)
+                            movePill(activeEl, false);
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+
+            function toggleDesktopSidebar() {
+                document.getElementById('sidebar')?.classList.toggle('collapsed');
+                trackPillAnimation();
+            }
+            function toggleMobileSidebar() {
+                document.getElementById('sidebar')?.classList.toggle('mobile-open');
+                document.getElementById('sidebarOverlay')?.classList.toggle('active');
+                trackPillAnimation();
+            }
+
+            function urlBase64ToUint8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+                const raw = atob(base64);
+                return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+            }
+
+            async function subscribePush() {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                    await apiFetch('/push-subscription', 'POST', {
+                        subscription,
+                        userEmail: state.user?.email || null
+                    });
+                } catch (err) {
+                    console.warn('[Push] Subscribe failed:', err.message);
+                }
+            }
+
+            async function unsubscribePush() {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    if (!subscription)
+                        return;
+                    await apiFetch('/push-subscription', 'DELETE', {
+                        endpoint: subscription.endpoint
+                    });
+                    await subscription.unsubscribe();
+                } catch (err) {
+                    console.warn('[Push] Unsubscribe failed:', err.message);
+                }
+            }
+
+            async function handleNotifBell() {
+                if (!('serviceWorker'in navigator) || !('PushManager'in window)) {
+                    return showToast('Push notifications not supported in this browser', 'error');
+                }
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        return showToast('Notification permission denied', 'error');
+                    }
+                    const btn = document.getElementById('notifBellBtn');
+                    if (btn)
+                        btn.style.opacity = '0.5';
+                    await subscribePush();
+                    showToast('Successfully subscribed to notifications!');
+                    if (btn) {
+                        btn.style.opacity = '1';
+                        const icon = document.getElementById('notifBellIcon');
+                        if (icon) {
+                            icon.querySelector('use').setAttribute('href', '#ic-bell-ringing');
+                            icon.style.color = 'var(--accent)';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Push Subscription Error:', e);
+                    showToast('Failed to subscribe to notifications', 'error');
+                    const btn = document.getElementById('notifBellBtn');
+                    if (btn)
+                        btn.style.opacity = '1';
+                }
+            }
+
+            async function renderHomeView() {
+                const wv = document.getElementById('welcomeView');
+                if (!wv)
+                    return;
+
+                wv.innerHTML = `
+                <div class="workspace-header">
+                    <h1>Home</h1>
+                    <div class="subject-meta">Your overview and recent updates</div>
+                </div>
+                <div class="content-grid" style="display:flex; flex-direction:column; gap:48px; max-width:900px;">
+                    <div>
+                        <div class="section-title">Pending Assignments</div>
+                        <div class="timeline" id="homeTimeline">
+                            <div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-title">Recently Added Resources</div>
+                        <div class="resources-list" id="homeRecentResources">
+                            <div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:64px; padding-top:32px; border-top:1px solid var(--border); color:var(--text-muted); font-size:0.8rem; text-align:center; line-height:1.6;">
+                    <p style="margin-bottom:8px;">This product was created by <strong style="color:var(--text-main);">NullYex</strong> to help in studies. This website or NullYex has no relation whatsoever with the university.</p>
+                    <p>&copy; ${new Date().getFullYear()} NullYex. All rights reserved.</p>
+                </div>
+            `;
+
+                const timelineEl = document.getElementById('homeTimeline');
+                const upcoming = state.assignments.filter(a => !isCompletedByUser(a.id)).sort( (a, b) => {
+                    const da = a.due_date ? new Date(a.due_date) : new Date(8.64e15);
+                    const db = b.due_date ? new Date(b.due_date) : new Date(8.64e15);
+                    return da - db;
+                }
+                );
+
+                if (upcoming.length === 0) {
+                    timelineEl.innerHTML = `
+                    <div style="padding: 32px 24px; text-align: center; color: var(--text-muted); background: var(--panel-bg); border: 1px dashed var(--border-focus); border-radius: 12px;">
+                        <p style="font-size: 0.9rem;">No pending assignments.</p>
+                    </div>`;
+                } else {
+                    timelineEl.innerHTML = '';
+                    upcoming.slice(0, 5).forEach(asg => {
+                        const sub = SUBJECTS.find(s => s.id === asg.subject_id);
+                        const subName = sub ? sub.name : 'Unknown Subject';
+                        const days = getDaysDiff(asg.due_date);
+                        let dateChip = `<span class="chip"><svg class="icon"><use href="#ic-calendar"/></svg> ${formatDate(asg.due_date) || 'No Due Date'}</span>`;
+                        if (asg.due_date) {
+                            if (days < 0)
+                                dateChip = `<span class="chip danger"><svg class="icon"><use href="#ic-alert-circle"/></svg> Past Due</span>`;
+                            else if (days <= 3)
+                                dateChip = `<span class="chip warning"><svg class="icon"><use href="#ic-clock"/></svg> ${days}d left</span>`;
+                        }
+                        const el = document.createElement('div');
+                        el.className = 'task';
+                        el.id = `home-task-${asg.id}`;
+                        el.innerHTML = `
+                        <div class="task-body" style="cursor:pointer;" onclick="loadSubject('${asg.subject_id}')">
+                            <div class="task-checkbox" data-id="${asg.id}" onclick="event.stopPropagation(); toggleCompleteStatus('${asg.id}', this)"></div>
+                            <div style="font-size:0.7rem; color:var(--accent); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">${subName}</div>
+                            <div class="task-title">${asg.title}</div>
+                            <div class="task-meta">${dateChip}</div>
+                        </div>`;
+                        timelineEl.appendChild(el);
+                    }
+                    );
+                }
+
+                const recentEl = document.getElementById('homeRecentResources');
+                try {
+                    const [notesRes,sylRes] = await Promise.all([apiFetch('/notes?select=*'), apiFetch('/syllabus?select=*')]);
+                    let combined = [...(state.assignments || []).map(a => ({
+                        ...a,
+                        _type: 'asg',
+                        _title: a.title,
+                        _date: a.created_at || ''
+                    })), ...(notesRes || []).map(n => ({
+                        ...n,
+                        _type: 'note',
+                        _title: n.title,
+                        _date: n.created_at || ''
+                    })), ...(sylRes || []).map(s => ({
+                        ...s,
+                        _type: 'syl',
+                        _title: s.title,
+                        _date: s.created_at || ''
+                    }))];
+                    combined.sort( (a, b) => new Date(b._date || 0) - new Date(a._date || 0));
+                    combined = combined.slice(0, 6);
+
+                    if (combined.length === 0) {
+                        recentEl.innerHTML = `<div class="empty-state"><svg class="icon"><use href="#ic-files"/></svg><p>No recent activity.</p></div>`;
+                    } else {
+                        recentEl.innerHTML = '';
+                        const icons = {
+                            note: 'ic-notebook',
+                            syl: 'ic-book',
+                            asg: 'ic-clipboard'
+                        };
+                        combined.forEach(item => {
+                            const sub = SUBJECTS.find(s => s.id === item.subject_id);
+                            const subName = sub ? sub.name : 'Unknown Subject';
+                            const el = document.createElement('div');
+                            el.className = 'resource-card';
+                            el.style.cursor = 'pointer';
+                            el.onclick = () => loadSubject(item.subject_id);
+                            el.innerHTML = `
+                            <div class="resource-header">
+                                <div class="resource-icon" style="width:28px;height:28px;font-size:1rem;"><svg class="icon"><use href="#${icons[item._type] || 'ic-file-text'}"/></svg></div>
+                                <div>
+                                    <div style="font-size:0.65rem; color:var(--text-muted); font-family:var(--font-mono);">${subName}</div>
+                                    <div class="resource-title" style="font-size:0.85rem;">${item._title}</div>
+                                </div>
+                            </div>`;
+                            recentEl.appendChild(el);
+                        }
+                        );
+                    }
+                } catch (e) {
+                    if (recentEl)
+                        recentEl.innerHTML = `<div class="empty-state"><p>No resources added yet.</p></div>`;
+                }
+            }
+
+            function switchView(view) {
+                const viewMap = {
+                    home: 'welcomeView',
+                    subject: 'subjectView',
+                    notices: 'noticesView',
+                    cover_page: 'coverPageView'
+                };
+
+                const currentEl = document.getElementById(viewMap[state.currentView]);
+                const nextEl = document.getElementById(viewMap[view]);
+
+                if (!nextEl)
+                    return;
+
+                const doSwitch = () => {
+                    state.currentView = view;
+                    Object.values(viewMap).forEach(v => {
+                        const el = document.getElementById(v);
+                        if (el) {
+                            el.classList.add('hidden');
+                            el.classList.remove('view-entering', 'view-exiting');
+                        }
+                    }
+                    );
+                    nextEl.classList.remove('hidden');
+                    nextEl.classList.add('view-entering');
+                    nextEl.addEventListener('animationend', () => nextEl.classList.remove('view-entering'), {
+                        once: true
+                    });
+
+                    if (view === 'home')
+                        renderHomeView();
+                    renderSidebarList();
+                    renderAdminControls();
+
+                    if (window.innerWidth <= 768) {
+                        document.getElementById('sidebar')?.classList.remove('mobile-open');
+                        document.getElementById('sidebarOverlay')?.classList.remove('active');
+                    }
+
+                    document.querySelector('.workspace')?.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                ;
+
+                if (!currentEl || currentEl === nextEl || currentEl.classList.contains('hidden')) {
+                    doSwitch();
+                } else {
+                    currentEl.classList.add('view-exiting');
+                    currentEl.addEventListener('animationend', doSwitch, {
+                        once: true
+                    });
+                }
+            }
+
+            function updateSidebarFooter() {
+                const nameEl = document.getElementById('sidebarUserName');
+                const roleEl = document.getElementById('sidebarUserRole');
+                const avatarEl = document.getElementById('sidebarAvatar');
+                if (state.user) {
+                    const name = state.user.user_metadata?.full_name || 'Student';
+                    if (nameEl)
+                        nameEl.textContent = name;
+                    if (roleEl)
+                        roleEl.textContent = state.isAdmin ? 'Admin' : state.user.email;
+                    const avatarUrl = state.user.user_metadata?.avatar_url;
+                    if (avatarEl)
+                        avatarEl.innerHTML = avatarUrl ? `<img src="${avatarUrl}" alt="">` : getInitials(name, state.user.email);
+                } else {
+                    if (nameEl)
+                        nameEl.textContent = 'Sign In';
+                    if (roleEl)
+                        roleEl.textContent = 'Guest';
+                    if (avatarEl)
+                        avatarEl.innerHTML = '<svg class="icon"><use href="#ic-user"/></svg>';
+                }
+            }
+
+            function handleProfileClick() {
+                if (state.user) {
+                    const nameEl = document.getElementById('profileNameModal');
+                    const emailEl = document.getElementById('profileEmailModal');
+                    const avatarEl = document.getElementById('profileAvatarLarge');
+                    const name = state.user.user_metadata?.full_name || 'Student';
+                    if (nameEl)
+                        nameEl.textContent = name;
+                    if (emailEl)
+                        emailEl.textContent = state.user.email;
+                    const avatarUrl = state.user.user_metadata?.avatar_url;
+                    if (avatarEl)
+                        avatarEl.innerHTML = avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:12px;object-fit:cover;" alt="">` : getInitials(name, state.user.email);
+                    openModal('profileModal');
+                } else {
+                    openModal('signInModal');
+                }
+            }
+
+            function movePill(activeEl, disableTransition=false) {
+                const pill = document.getElementById('sidebarActivePill');
+                const list = document.getElementById('subjectList');
+                if (!pill || !list || !activeEl) {
+                    if (pill)
+                        pill.style.opacity = '0';
+                    return;
+                }
+
+                if (disableTransition) {
+                    pill.style.transition = 'none';
+                } else {
+                    pill.style.transition = 'top 0.2s cubic-bezier(0.4, 0, 0.2, 1), height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease';
+                }
+
+                const listRect = list.getBoundingClientRect();
+                const elRect = activeEl.getBoundingClientRect();
+                pill.style.opacity = '1';
+                pill.style.top = (elRect.top - listRect.top + list.scrollTop) + 'px';
+                pill.style.height = elRect.height + 'px';
+            }
+
+            function renderSidebarList() {
+                const list = document.getElementById('subjectList');
+                if (!list)
+                    return;
+                const pill = document.getElementById('sidebarActivePill');
+                list.innerHTML = '';
+                if (pill)
+                    list.appendChild(pill);
+
+                const createItem = (id, icon, name, isView, onClick) => {
+                    const isActive = isView ? state.currentView === id : (state.currentSubjectId === id && state.currentView === 'subject');
+                    const el = document.createElement('div');
+                    el.className = `subject ${isActive ? 'active' : ''}`;
+                    el.onclick = onClick;
+                    el.innerHTML = `<div class="subject-content"><div class="subject-icon">${icon}</div><span class="subject-name">${name}</span></div>`;
+                    return el;
+                }
+                ;
+
+                list.appendChild(createItem('home', '<svg class="icon"><use href="#ic-home"/></svg>', 'Home', true, () => switchView('home')));
+                list.appendChild(createItem('cover_page', 'CP', 'Cover Page', true, () => switchView('cover_page')));
+                list.appendChild(createItem('notices', 'GN', 'General Notices', true, () => {
+                    switchView('notices');
+                    loadNotices();
+                }
+                ));
+
+                const lbl1 = document.createElement('div');
+                lbl1.className = 'nav-section-label';
+                lbl1.textContent = 'Subjects';
+                list.appendChild(lbl1);
+
+                SUBJECTS.filter(s => !s.isLab).forEach(sub => {
+                    const words = sub.name.split(' ');
+                    const icon = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : sub.name.substring(0, 2).toUpperCase();
+                    const el = createItem(sub.id, icon, sub.name, false, () => loadSubject(sub.id));
+                    const pending = state.assignments.filter(a => a.subject_id === sub.id && !isCompletedByUser(a.id)).length;
+                    if (pending > 0)
+                        el.innerHTML += `<div class="subject-count">${pending}</div>`;
+                    list.appendChild(el);
+                }
+                );
+
+                const lbl2 = document.createElement('div');
+                lbl2.className = 'nav-section-label';
+                lbl2.textContent = 'Lab Records';
+                list.appendChild(lbl2);
+
+                SUBJECTS.filter(s => s.isLab).forEach(sub => {
+                    const words = sub.name.split(' ');
+                    const icon = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : sub.name.substring(0, 2).toUpperCase();
+                    const el = createItem(sub.id, icon, sub.name, false, () => loadSubject(sub.id));
+                    const pending = state.assignments.filter(a => a.subject_id === sub.id && !isCompletedByUser(a.id)).length;
+                    if (pending > 0)
+                        el.innerHTML += `<div class="subject-count">${pending}</div>`;
+                    list.appendChild(el);
+                }
+                );
+
+                requestAnimationFrame( () => {
+                    const activeEl = list.querySelector('.subject.active');
+                    movePill(activeEl, false);
+                }
+                );
+            }
+
+            function renderAdminControls() {
+                document.getElementById('adminAddAsgBtn')?.classList.toggle('hidden', !(state.isAdmin && state.currentView === 'subject'));
+                document.getElementById('adminAddSylBtn')?.classList.toggle('hidden', !(state.isAdmin && state.currentView === 'subject'));
+                document.getElementById('adminAddNoteBtn')?.classList.toggle('hidden', !(state.isAdmin && state.currentView === 'subject'));
+                document.getElementById('adminAddNoticeBtn')?.classList.toggle('hidden', !(state.isAdmin && state.currentView === 'notices'));
+                document.getElementById('adminInboxBtn')?.classList.toggle('hidden', !state.isAdmin);
+            }
+
+            async function loadNotices() {
+                const listEl = document.getElementById('noticesList');
+                if (!listEl)
+                    return;
+                listEl.innerHTML = `<div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>`;
+                try {
+                    const data = await apiFetch('/notices?order=created_at.desc', 'GET');
+                    state.notices = Array.isArray(data) ? data : [];
+                } catch (e) {
+                    state.notices = [];
+                }
+                renderNotices();
+            }
+
+            function renderNotices() {
+                const listEl = document.getElementById('noticesList');
+                if (!listEl)
+                    return;
+                if (state.notices.length === 0) {
+                    listEl.innerHTML = `<div class="empty-state"><svg class="icon"><use href="#ic-bell-off"/></svg><p>No notices posted yet.</p></div>`;
+                    return;
+                }
+                listEl.innerHTML = '';
+                state.notices.forEach(n => {
+                    const card = document.createElement('div');
+                    card.className = 'resource-card';
+                    card.style.borderLeft = '3px solid var(--warning)';
+                    const date = n.created_at ? formatDate(n.created_at) : '';
+                    card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;">
+                        <div class="resource-title" style="margin:0;">${n.title}</div>
+                        <span style="font-size:0.7rem;color:var(--text-muted);font-family:var(--font-mono);white-space:nowrap;flex-shrink:0;">${date}</span>
+                    </div>
+                    ${n.body ? `<div class="resource-body" style="margin-left:0; margin-bottom:12px;">${n.body}</div>` : ''}
+                    ${n.file_url ? `<a href="${n.file_url}" target="_blank" rel="noopener" class="btn btn-secondary text-xs" style="width:fit-content;"><svg class="icon"><use href="#ic-link"/></svg> Open File</a>` : ''}
+                    ${state.isAdmin ? `
+                    <div style="display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+                        <button type="button" class="btn btn-ghost text-xs" onclick="openEditNoticeModal('${n.id}')"><svg class="icon"><use href="#ic-pencil"/></svg> Edit</button>
+                        <button type="button" class="btn btn-danger text-xs" onclick="deleteNotice('${n.id}')"><svg class="icon"><use href="#ic-trash"/></svg> Delete</button>
+                    </div>` : ''}`;
+                    listEl.appendChild(card);
+                }
+                );
+            }
+
+            let _editingNoticeId = null;
+            function openAddNoticeModal() {
+                _editingNoticeId = null;
+                document.getElementById('noticeModalTitle').textContent = 'Post Notice';
+                document.getElementById('noticeTitle').value = '';
+                document.getElementById('noticeBody').value = '';
+                document.getElementById('noticeFileUrl').value = '';
+                openModal('noticeModal');
+            }
+            function openEditNoticeModal(id) {
+                const n = state.notices.find(x => x.id === id);
+                if (!n)
+                    return;
+                _editingNoticeId = id;
+                document.getElementById('noticeModalTitle').textContent = 'Edit Notice';
+                document.getElementById('noticeTitle').value = n.title || '';
+                document.getElementById('noticeBody').value = n.body || '';
+                document.getElementById('noticeFileUrl').value = n.file_url || '';
+                openModal('noticeModal');
+            }
+            async function saveNotice() {
+                const title = document.getElementById('noticeTitle').value.trim();
+                const body = document.getElementById('noticeBody').value.trim();
+                const file_url = document.getElementById('noticeFileUrl').value.trim();
+                if (!title)
+                    return showToast('Title is required', 'error');
+                const btn = document.getElementById('saveNoticeBtn');
+                btn.disabled = true;
+                try {
+                    const payload = {
+                        title,
+                        body: body || null,
+                        file_url: file_url || null
+                    };
+                    if (_editingNoticeId) {
+                        await apiFetch(`/notices?id=eq.${_editingNoticeId}`, 'PATCH', payload);
+                        showToast('Notice updated');
+                    } else {
+                        await apiFetch('/notices', 'POST', payload);
+                        showToast('Notice posted');
+                    }
+                    closeModal('noticeModal');
+                    await loadNotices();
+                } catch (e) {
+                    showToast('Failed to save notice', 'error');
+                }
+                btn.disabled = false;
+            }
+            async function deleteNotice(id) {
+                if (!confirm('Delete this notice?'))
+                    return;
+                try {
+                    await apiFetch(`/notices?id=eq.${id}`, 'DELETE');
+                    state.notices = state.notices.filter(n => n.id !== id);
+                    renderNotices();
+                    showToast('Notice deleted');
+                } catch (e) {
+                    showToast('Failed to delete', 'error');
+                }
+            }
+
+            let complaintType = 'complaint';
+            function openComplaintModal() {
+                complaintType = 'complaint';
+                document.querySelectorAll('.type-pill').forEach(p => {
+                    p.classList.toggle('active', p.dataset.type === complaintType);
+                }
+                );
+
+                const sel = document.getElementById('cSubject');
+                if (sel) {
+                    sel.innerHTML = '<option value="">— General / No specific subject —</option>';
+                    SUBJECTS.forEach(s => {
+                        const o = document.createElement('option');
+                        o.value = s.id;
+                        o.textContent = s.name;
+                        if (s.id === state.currentSubjectId)
+                            o.selected = true;
+                        sel.appendChild(o);
+                    }
+                    );
+                }
+
+                const cTitle = document.getElementById('cTitle');
+                const cBody = document.getElementById('cBody');
+                if (cTitle)
+                    cTitle.value = '';
+                if (cBody)
+                    cBody.value = '';
+
+                const group = document.getElementById('cRefGroup');
+                if (group)
+                    group.style.display = 'none';
+                populateComplaintRef();
+
+                openModal('complaintModal');
+            }
+
+            function selectComplaintType(type) {
+                complaintType = type;
+                document.querySelectorAll('.type-pill').forEach(p => {
+                    p.classList.toggle('active', p.dataset.type === type);
+                }
+                );
+            }
+
+            function populateComplaintRef() {
+                const subId = document.getElementById('cSubject')?.value;
+                const group = document.getElementById('cRefGroup');
+                const sel = document.getElementById('cRef');
+                if (!subId || !group || !sel) {
+                    if (group)
+                        group.style.display = 'none';
+                    return;
+                }
+                group.style.display = 'block';
+                sel.innerHTML = '<option value="">— Any / General —</option>';
+                const subAsgs = state.assignments.filter(a => a.subject_id === subId);
+                if (subAsgs.length) {
+                    const og = document.createElement('optgroup');
+                    og.label = 'Assignments';
+                    subAsgs.forEach(a => {
+                        const o = document.createElement('option');
+                        o.value = `assignment:${a.id}`;
+                        o.textContent = a.title;
+                        og.appendChild(o);
+                    }
+                    );
+                    sel.appendChild(og);
+                }
+            }
+
+            async function submitComplaint() {
+                const title = document.getElementById('cTitle')?.value.trim();
+                const body = document.getElementById('cBody')?.value.trim();
+                if (!title)
+                    return showToast('Please enter a title', 'error');
+
+                const subId = document.getElementById('cSubject')?.value;
+                const refVal = document.getElementById('cRef')?.value;
+                const category = document.getElementById('cCategory')?.value;
+                const subName = subId ? SUBJECTS.find(s => s.id === subId)?.name : '';
+
+                let refType = null
+                , refId = null;
+                if (refVal)
+                    [refType,refId] = refVal.split(':');
+
+                const payload = {
+                    type: complaintType,
+                    category,
+                    title,
+                    body,
+                    subject_id: subId || null,
+                    subject_name: subName || null,
+                    ref_type: refType || null,
+                    ref_id: refId || null,
+                    status: 'open',
+                    submitter_email: state.user?.email,
+                    submitter_name: state.user?.user_metadata?.full_name || state.user?.email
+                };
+
+                const btn = document.getElementById('submitComplaintBtn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = 'Submitting...';
+                }
+                try {
+                    await apiFetch('/tickets', 'POST', payload);
+                    showToast('Submitted successfully.');
+                    closeModal('complaintModal');
+                } catch (e) {
+                    showToast('Submission failed', 'error');
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Submit';
+                }
+            }
+
+            let inboxFilter = 'all';
+            let allTickets = [];
+            async function openInboxModal() {
+                openModal('inboxModal');
+                await loadTickets();
+            }
+
+            async function loadTickets() {
+                const listEl = document.getElementById('inboxList');
+                if (!listEl)
+                    return;
+                listEl.innerHTML = `<div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>`;
+                try {
+                    allTickets = await apiFetch('/tickets?order=created_at.desc', 'GET') || [];
+                    renderInbox();
+                    updateInboxBadge();
+                } catch (e) {
+                    listEl.innerHTML = `<div class="empty-state"><svg class="icon"><use href="#ic-alert-circle"/></svg><p>Failed to load tickets.</p></div>`;
+                }
+            }
+
+            function setInboxFilter(f) {
+                inboxFilter = f;
+                document.querySelectorAll('[data-filter]').forEach(b => {
+                    b.className = `btn text-xs ${b.dataset.filter === f ? 'btn-primary' : 'btn-secondary'}`;
+                }
+                );
+                renderInbox();
+            }
+
+            function renderInbox() {
+                const listEl = document.getElementById('inboxList');
+                const countEl = document.getElementById('inboxCount');
+                if (!listEl)
+                    return;
+
+                let tickets = allTickets;
+                if (inboxFilter === 'open')
+                    tickets = tickets.filter(t => t.status === 'open');
+                if (inboxFilter === 'resolved')
+                    tickets = tickets.filter(t => t.status === 'resolved');
+
+                if (countEl)
+                    countEl.textContent = `(${tickets.length})`;
+
+                if (tickets.length === 0) {
+                    listEl.innerHTML = `<div class="empty-state"><svg class="icon"><use href="#ic-inbox"/></svg><p>No tickets.</p></div>`;
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                tickets.forEach(t => {
+                    const isOpen = t.status === 'open';
+                    const d = document.createElement('div');
+                    d.className = `ticket ${isOpen ? 'unread' : ''}`;
+                    d.innerHTML = `
+                    <div class="ticket-header">
+                        <div style="font-weight:600;font-size:0.9rem;">${t.title}</div>
+                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                            <span class="ticket-badge ${t.type === 'complaint' ? 'complaint' : ''}">${t.type.toUpperCase()}</span>
+                            ${!isOpen ? '<span class="ticket-badge" style="background:rgba(34,197,94,0.1);color:var(--success);">RESOLVED</span>' : ''}
+                        </div>
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+                        ${t.subject_name ? `<span><svg class="icon"><use href="#ic-books"/></svg> ${t.subject_name}</span>` : ''}
+                        <span><svg class="icon"><use href="#ic-user"/></svg> ${t.submitter_name || t.submitter_email || 'Anonymous'}</span>
+                        <span><svg class="icon"><use href="#ic-clock"/></svg> ${formatDate(t.created_at)}</span>
+                    </div>
+                    ${t.body ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">${t.body}</div>` : ''}
+                    <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px;">
+                        ${isOpen ? `<button type="button" class="btn btn-primary text-xs" onclick="resolveTicket('${t.id}')"><svg class="icon"><use href="#ic-check"/></svg> Mark Resolved</button>` : `<button type="button" class="btn btn-secondary text-xs" onclick="reopenTicket('${t.id}')"><svg class="icon"><use href="#ic-arrow-back"/></svg> Reopen</button>`}
+                        <button type="button" class="btn btn-danger text-xs" onclick="deleteTicket('${t.id}')"><svg class="icon"><use href="#ic-trash"/></svg> Delete</button>
+                    </div>`;
+                    listEl.appendChild(d);
+                }
+                );
+            }
+
+            async function resolveTicket(id) {
+                try {
+                    await apiFetch(`/tickets?id=eq.${id}`, 'PATCH', {
+                        status: 'resolved'
+                    });
+                    const t = allTickets.find(x => x.id === id);
+                    if (t)
+                        t.status = 'resolved';
+                    renderInbox();
+                    updateInboxBadge();
+                } catch (e) {
+                    showToast('Failed to update ticket', 'error');
+                }
+            }
+            async function reopenTicket(id) {
+                try {
+                    await apiFetch(`/tickets?id=eq.${id}`, 'PATCH', {
+                        status: 'open'
+                    });
+                    const t = allTickets.find(x => x.id === id);
+                    if (t)
+                        t.status = 'open';
+                    renderInbox();
+                    updateInboxBadge();
+                } catch (e) {
+                    showToast('Failed to update ticket', 'error');
+                }
+            }
+            async function deleteTicket(id) {
+                if (!confirm('Delete ticket?'))
+                    return;
+                try {
+                    await apiFetch(`/tickets?id=eq.${id}`, 'DELETE');
+                    allTickets = allTickets.filter(x => x.id !== id);
+                    renderInbox();
+                    updateInboxBadge();
+                } catch (e) {
+                    showToast('Failed to delete ticket', 'error');
+                }
+            }
+            async function fetchUnreadCount() {
+                try {
+                    const data = await apiFetch('/tickets?status=eq.open', 'GET');
+                    if (data && data.length > 0)
+                        document.getElementById('inboxBadge')?.classList.remove('hidden');
+                } catch (e) {}
+            }
+            function updateInboxBadge() {
+                const badge = document.getElementById('inboxBadge');
+                if (!badge)
+                    return;
+                if (allTickets.filter(t => t.status === 'open').length > 0)
+                    badge.classList.remove('hidden');
+                else
+                    badge.classList.add('hidden');
+            }
+
+            async function loadSubject(id) {
+                state.currentSubjectId = id;
+                switchView('subject');
+
+                const sub = SUBJECTS.find(s => s.id === id);
+                if (!sub)
+                    return;
+
+                document.getElementById('subjectTitle').textContent = sub.name;
+                document.getElementById('subjectTeacher').textContent = sub.teacher;
+
+                const cpSubjEl = document.getElementById('cp-input-subj');
+                const cpTeacherEl = document.getElementById('cp-input-teacher');
+                if (cpSubjEl) {
+                    cpSubjEl.value = sub.name;
+                    updateCP('cp-val-subj', sub.name);
+                }
+                if (cpTeacherEl) {
+                    cpTeacherEl.value = sub.teacher;
+                    updateCP('cp-val-submit', sub.teacher);
+                }
+
+                document.getElementById('assignmentList').innerHTML = '<div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>';
+                document.getElementById('resourcesList').innerHTML = '<div class="empty-state"><svg class="icon icon-spin"><use href="#ic-loader"/></svg></div>';
+
+                await Promise.all([fetchAssignments(), fetchResources()]);
+                renderTimeline();
+                renderResources();
+                updateProgress();
+                renderSidebarList();
+            }
+
+            async function fetchAssignments() {
+                try {
+                    state.assignments = await apiFetch('/assignments?select=*') || [];
+                } catch (e) {
+                    state.assignments = [];
+                }
+            }
+            async function fetchResources() {
+                try {
+                    state.syllabus = await apiFetch(`/syllabus?subject_id=eq.${state.currentSubjectId}`) || [];
+                } catch (e) {
+                    state.syllabus = [];
+                }
+                try {
+                    state.notes = await apiFetch(`/notes?subject_id=eq.${state.currentSubjectId}`) || [];
+                } catch (e) {
+                    state.notes = [];
+                }
+            }
+
+            function isCompletedByUser(id) {
+                const uid = state.user?.id;
+                if (!uid)
+                    return false;
+                return !!JSON.parse(localStorage.getItem(`comp_${uid}`) || '{}')[id];
+            }
+
+            async function toggleCompleteStatus(id, checkboxEl) {
+                if (!state.user) {
+                    openModal('signInModal');
+                    return;
+                }
+
+                const isNowDone = !checkboxEl.classList.contains('checked');
+                const storageKey = `comp_${state.user.id}`;
+                const comps = JSON.parse(localStorage.getItem(storageKey) || '{}');
+                if (isNowDone)
+                    comps[id] = true;
+                else
+                    delete comps[id];
+                localStorage.setItem(storageKey, JSON.stringify(comps));
+
+                checkboxEl.classList.toggle('checked', isNowDone);
+                checkboxEl.innerHTML = isNowDone ? '<svg class="icon" style="font-size:12px;"><use href="#ic-check"/></svg>' : '';
+
+                const taskEl = document.getElementById(`task-${id}`);
+                if (taskEl)
+                    taskEl.classList.toggle('completed', isNowDone);
+
+                const homeTaskEl = document.getElementById(`home-task-${id}`);
+                if (homeTaskEl)
+                    homeTaskEl.classList.toggle('completed', isNowDone);
+
+                updateProgress();
+                renderSidebarList();
+
+                if (state.currentView === 'home')
+                    setTimeout(renderHomeView, 300);
+
+                try {
+                    await apiFetch(`/user_completions?user_id=eq.${state.user.id}&assignment_id=eq.${id}`, 'DELETE');
+                    if (isNowDone)
+                        await apiFetch('/user_completions', 'POST', {
+                            user_id: state.user.id,
+                            assignment_id: id,
+                            completed: true
+                        });
+                } catch (e) {}
+            }
+
+            function updateProgress() {
+                const subAsgs = state.assignments.filter(a => a.subject_id === state.currentSubjectId);
+                const total = subAsgs.length;
+                const done = subAsgs.filter(a => isCompletedByUser(a.id)).length;
+                const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+                const el = document.getElementById('subjectProgress');
+                if (el)
+                    el.textContent = `${done}/${total} (${pct}%)`;
+            }
+
+            function toggleSortDropdown(e) {
+                e.stopPropagation();
+                document.getElementById('sortDropMenu')?.classList.toggle('active');
+            }
+            function setSort(type) {
+                state.sortBy = type;
+                const labels = {
+                    due_date: 'Due Date',
+                    title: 'Name',
+                    status: 'Status'
+                };
+                const labelEl = document.getElementById('sortLabel');
+                if (labelEl)
+                    labelEl.textContent = labels[type];
+                document.getElementById('sortDropMenu')?.classList.remove('active');
+                renderTimeline();
+            }
+
+            function renderTimeline() {
+                const listEl = document.getElementById('assignmentList');
+                if (!listEl)
+                    return;
+                let subAsgs = state.assignments.filter(a => a.subject_id === state.currentSubjectId);
+
+                subAsgs.sort( (a, b) => {
+                    if (state.sortBy === 'due_date') {
+                        return (a.due_date ? new Date(a.due_date) : new Date(8.64e15)) - (b.due_date ? new Date(b.due_date) : new Date(8.64e15));
+                    }
+                    if (state.sortBy === 'title')
+                        return (a.title || '').localeCompare(b.title || '');
+                    if (state.sortBy === 'status')
+                        return (isCompletedByUser(a.id) ? 1 : 0) - (isCompletedByUser(b.id) ? 1 : 0);
+                    return 0;
+                }
+                );
+
+                if (subAsgs.length === 0) {
+                    listEl.innerHTML = `<div class="empty-state"><svg class="icon"><use href="#ic-folder-open"/></svg><p>No tasks found.</p></div>`;
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                subAsgs.forEach(asg => {
+                    const isDone = isCompletedByUser(asg.id);
+                    const days = getDaysDiff(asg.due_date);
+                    let dateChip = `<span class="chip"><svg class="icon"><use href="#ic-calendar"/></svg> ${formatDate(asg.due_date) || 'No Due Date'}</span>`;
+                    if (!isDone && asg.due_date) {
+                        if (days < 0)
+                            dateChip = `<span class="chip danger"><svg class="icon"><use href="#ic-alert-circle"/></svg> Past Due</span>`;
+                        else if (days <= 3)
+                            dateChip = `<span class="chip warning"><svg class="icon"><use href="#ic-clock"/></svg> ${days}d left</span>`;
+                    }
+
+                    let uploadsHtml = '';
+                    if (asg.uploads && asg.uploads.length) {
+                        uploadsHtml = '<div class="uploads-list">';
+                        asg.uploads.forEach(up => {
+                            uploadsHtml += `
+                            <div class="upload-item" onclick="window.open('${up.url}','_blank')">
+                                <div class="upload-info">
+                                    <svg class="icon"><use href="#ic-file-text"/></svg>
+                                    <div class="upload-text">
+                                        <span class="upload-name">${up.name}</span>
+                                        <span class="upload-sub">${formatDate(up.date)}</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:4px;align-items:center;">
+                                    <span class="btn btn-secondary text-xs" style="padding:4px 8px; pointer-events:none;"><svg class="icon"><use href="#ic-eye"/></svg></span>
+                                    ${state.isAdmin ? `<button type="button" class="btn btn-danger text-xs" style="padding:4px 8px;" onclick="event.stopPropagation(); adminDeleteUpload('${asg.id}','${up.url}')"><svg class="icon"><use href="#ic-trash"/></svg></button>` : ''}
+                                </div>
+                            </div>`;
+                        }
+                        );
+                        uploadsHtml += '</div>';
+                    }
+
+                    const el = document.createElement('div');
+                    el.className = `task ${isDone ? 'completed' : ''}`;
+                    el.id = `task-${asg.id}`;
+                    el.innerHTML = `
+                    <div class="task-body">
+                        <div class="task-checkbox ${isDone ? 'checked' : ''}" onclick="toggleCompleteStatus('${asg.id}',this)">
+                            ${isDone ? '<svg class="icon"><use href="#ic-check"/></svg>' : ''}
+                        </div>
+                        <div class="task-title">${asg.title}</div>
+                        <div class="task-meta">
+                            ${dateChip}
+                            ${asg.remarks ? `<span class="chip"><svg class="icon"><use href="#ic-info-circle"/></svg> ${asg.remarks}</span>` : ''}
+                        </div>
+                        ${uploadsHtml}
+                        <div class="task-actions">
+                            <button type="button" class="btn btn-secondary text-xs" onclick="openUploadModal('${asg.id}')"><svg class="icon"><use href="#ic-upload"/></svg> Upload Answer</button>
+                            ${asg.question_url ? `<a href="${asg.question_url}" target="_blank" rel="noopener" class="btn btn-ghost text-xs"><svg class="icon"><use href="#ic-link"/></svg> Question</a>` : ''}
+                            ${state.isAdmin ? `<button type="button" class="btn btn-ghost text-xs" onclick="openEditAssignmentModal('${asg.id}')"><svg class="icon"><use href="#ic-pencil"/></svg> Edit</button>` : ''}
+                        </div>
+                    </div>`;
+                    listEl.appendChild(el);
+                }
+                );
+            }
+
+            function renderResources() {
+                const listEl = document.getElementById('resourcesList');
+                if (!listEl)
+                    return;
+
+                if (state.syllabus.length === 0 && state.notes.length === 0) {
+                    listEl.innerHTML = `<div class="empty-state" style="padding:24px;"><svg class="icon"><use href="#ic-files"/></svg><p>No resources posted yet.</p></div>`;
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                const renderCard = (item, typeIcon, type) => {
+                    const el = document.createElement('div');
+                    el.className = 'resource-card';
+                    el.innerHTML = `
+                    <div class="resource-header">
+                        <div class="resource-icon"><svg class="icon"><use href="#${typeIcon}"/></svg></div>
+                        <div class="resource-title">${item.title}</div>
+                    </div>
+                    ${item.body ? `<div class="resource-body">${item.body}</div>` : ''}
+                    <div class="resource-actions">
+                        ${item.ref_url ? `<a href="${item.ref_url}" target="_blank" rel="noopener" class="btn btn-secondary text-xs"><svg class="icon"><use href="#ic-link"/></svg> Link</a>` : ''}
+                        ${state.isAdmin ? `<button type="button" class="btn btn-ghost text-xs" onclick="${type === 'syl' ? `openEditSyllabusModal('${item.id}')` : `openEditNoteModal('${item.id}')`}"><svg class="icon"><use href="#ic-pencil"/></svg> Edit</button>` : ''}
+                    </div>`;
+                    listEl.appendChild(el);
+                }
+                ;
+
+                state.syllabus.forEach(s => renderCard(s, 'ic-book', 'syl'));
+                state.notes.forEach(n => renderCard(n, 'ic-notebook', 'note'));
+            }
+
+            function populateSubjectDropdown() {
+                const sel = document.getElementById('asgSubject');
+                if (!sel)
+                    return;
+                sel.innerHTML = '';
+                SUBJECTS.forEach(s => {
+                    const o = document.createElement('option');
+                    o.value = s.id;
+                    o.textContent = s.name;
+                    sel.appendChild(o);
+                }
+                );
+            }
+
+            function openAddAssignmentModal() {
+                document.getElementById('asgModalTitle').textContent = 'Add Assignment';
+                document.getElementById('asgId').value = '';
+                document.getElementById('asgTitle').value = '';
+                document.getElementById('asgRemarks').value = '';
+                document.getElementById('asgQuestionUrl').value = '';
+                document.getElementById('deleteAsgBtn').classList.add('hidden');
+                const sel = document.getElementById('asgSubject');
+                if (sel && state.currentSubjectId)
+                    sel.value = state.currentSubjectId;
+                clearDueDate();
+                openModal('assignmentModal');
+            }
+
+            function openEditAssignmentModal(id) {
+                const asg = state.assignments.find(a => a.id === id);
+                if (!asg)
+                    return;
+                document.getElementById('asgModalTitle').textContent = 'Edit Assignment';
+                document.getElementById('asgId').value = asg.id;
+                document.getElementById('asgTitle').value = asg.title;
+                document.getElementById('asgSubject').value = asg.subject_id;
+                document.getElementById('asgRemarks').value = asg.remarks || '';
+                document.getElementById('asgQuestionUrl').value = asg.question_url || '';
+                document.getElementById('deleteAsgBtn').classList.remove('hidden');
+                setDatePickerDate(asg.due_date);
+                openModal('assignmentModal');
+            }
+
+            async function saveAssignment() {
+                const title = document.getElementById('asgTitle').value.trim();
+                const subject_id = document.getElementById('asgSubject').value;
+                const due_date = document.getElementById('asgDueDate').value || null;
+                const remarks = document.getElementById('asgRemarks').value.trim();
+                const question_url = document.getElementById('asgQuestionUrl').value.trim();
+
+                if (!title)
+                    return showToast('Title required', 'error');
+
+                const payload = {
+                    title,
+                    subject_id,
+                    due_date,
+                    remarks: remarks || null,
+                    question_url: question_url || null
+                };
+                const id = document.getElementById('asgId').value;
+                const btn = document.getElementById('saveAsgBtn');
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                try {
+                    if (id)
+                        await apiFetch(`/assignments?id=eq.${id}`, 'PATCH', payload);
+                    else
+                        await apiFetch('/assignments', 'POST', payload);
+                    showToast(`Assignment ${id ? 'updated' : 'added'}`);
+                    closeModal('assignmentModal');
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    console.error('Save assignment error:', e);
+                    showToast('Error: ' + (e.message || 'Failed to save'), 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+
+            async function deleteAssignment() {
+                const id = document.getElementById('asgId').value;
+                if (!id)
+                    return;
+                if (!confirm('Delete this assignment? This cannot be undone.'))
+                    return;
+                const btn = document.getElementById('deleteAsgBtn');
+                btn.disabled = true;
+                btn.textContent = 'Deleting...';
+                try {
+                    await apiFetch(`/assignments?id=eq.${id}`, 'DELETE');
+                    showToast('Assignment deleted');
+                    closeModal('assignmentModal');
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    showToast('Failed to delete', 'error');
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="icon"><use href="#ic-trash"/></svg> Delete';
+            }
+
+            function openUploadModal(id) {
+                requireAuth( () => {
+                    document.getElementById('uploadAsgId').value = id;
+                    document.getElementById('uploadFile').value = '';
+                    document.getElementById('uploadUrl').value = '';
+                    openModal('uploadModal');
+                }
+                );
+            }
+
+            async function submitUpload() {
+                const id = document.getElementById('uploadAsgId').value;
+                const file = document.getElementById('uploadFile').files[0];
+                const url = document.getElementById('uploadUrl').value.trim();
+                if (!file && !url)
+                    return showToast('Provide file or link', 'error');
+
+                const btn = document.getElementById('submitUploadBtn');
+                btn.disabled = true;
+                btn.textContent = 'Uploading...';
+
+                let finalUrl = url
+                  , fileName = file ? file.name : 'External Link';
+                if (file) {
+                    if (file.size > 50 * 1024 * 1024) {
+                        btn.disabled = false;
+                        btn.textContent = 'Upload';
+                        return showToast('File too large (max 50MB)', 'error');
+                    }
+                    const ext = file.name.split('.').pop();
+                    const path = `${state.user.id}/${Date.now()}.${ext}`;
+                    try {
+                        const {error} = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
+                        if (error)
+                            throw error;
+                        finalUrl = supabaseClient.storage.from('assignment-pdfs').getPublicUrl(path).data.publicUrl;
+                    } catch (e) {
+                        btn.disabled = false;
+                        btn.textContent = 'Upload';
+                        return showToast('Storage error: ' + (e.message || 'Upload failed'), 'error');
+                    }
+                }
+
+                const asg = state.assignments.find(a => a.id === id);
+                if (!asg) {
+                    btn.disabled = false;
+                    btn.textContent = 'Upload';
+                    return showToast('Assignment not found', 'error');
+                }
+
+                const newUploads = [...(asg.uploads || []), {
+                    name: fileName,
+                    url: finalUrl,
+                    date: new Date().toISOString(),
+                    uploader_uid: state.user.id,
+                    uploader_email: state.user.email
+                }];
+                try {
+                    await apiFetch(`/assignments?id=eq.${id}`, 'PATCH', {
+                        uploads: newUploads
+                    });
+                    showToast('Upload successful');
+                    closeModal('uploadModal');
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    showToast('Upload failed', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Upload';
+            }
+
+            async function adminDeleteUpload(asgId, url) {
+                if (!state.isAdmin || !confirm('Delete this upload?'))
+                    return;
+                const asg = state.assignments.find(a => a.id === asgId);
+                if (!asg)
+                    return;
+                const newUploads = (asg.uploads || []).filter(u => u.url !== url);
+                try {
+                    await apiFetch(`/assignments?id=eq.${asgId}`, 'PATCH', {
+                        uploads: newUploads
+                    });
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    showToast('Failed to delete upload', 'error');
+                }
+            }
+
+            function updateCP(id, val) {
+                const el = document.getElementById(id);
+                if (el)
+                    el.textContent = val;
+            }
+            async function downloadCoverPage() {
+                const el = document.getElementById('coverPagePreview');
+                if (!window.html2canvas) {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    document.head.appendChild(s);
+                    await new Promise( (res, rej) => {
+                        s.onload = res;
+                        s.onerror = rej;
+                    }
+                    );
+                }
+                showToast('Generating PNG...');
+                try {
+                    const canvas = await html2canvas(el, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#fff'
+                    });
+                    const link = document.createElement('a');
+                    link.download = 'CoverPage.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (e) {
+                    showToast('Failed to generate PNG', 'error');
+                }
+            }
+
+            function openAddSyllabusModal() {
+                document.getElementById('sylModalTitle').textContent = 'Add Topic';
+                document.getElementById('sylId').value = '';
+                document.getElementById('sylTitle').value = '';
+                document.getElementById('sylBody').value = '';
+                document.getElementById('sylUrl').value = '';
+                openModal('syllabusModal');
+            }
+            function openEditSyllabusModal(id) {
+                const item = state.syllabus.find(s => s.id === id);
+                if (!item)
+                    return;
+                document.getElementById('sylModalTitle').textContent = 'Edit Topic';
+                document.getElementById('sylId').value = item.id;
+                document.getElementById('sylTitle').value = item.title || '';
+                document.getElementById('sylBody').value = item.body || '';
+                document.getElementById('sylUrl').value = item.ref_url || '';
+                openModal('syllabusModal');
+            }
+            async function saveSyllabus() {
+                const title = document.getElementById('sylTitle').value.trim();
+                const body = document.getElementById('sylBody').value.trim();
+                const ref_url = document.getElementById('sylUrl').value.trim();
+                const id = document.getElementById('sylId').value;
+                if (!title)
+                    return showToast('Title required', 'error');
+                const btn = document.getElementById('saveSylBtn');
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                const payload = {
+                    title,
+                    body: body || null,
+                    ref_url: ref_url || null,
+                    subject_id: state.currentSubjectId
+                };
+                try {
+                    if (id)
+                        await apiFetch(`/syllabus?id=eq.${id}`, 'PATCH', payload);
+                    else
+                        await apiFetch('/syllabus', 'POST', payload);
+                    showToast(`Topic ${id ? 'updated' : 'added'}`);
+                    closeModal('syllabusModal');
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    showToast('Error saving', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+
+            function openAddNoteModal() {
+                document.getElementById('noteModalTitle').textContent = 'Add Note';
+                document.getElementById('noteId').value = '';
+                document.getElementById('noteTitle').value = '';
+                document.getElementById('noteBody').value = '';
+                document.getElementById('noteUrl').value = '';
+                openModal('noteModal');
+            }
+            function openEditNoteModal(id) {
+                const item = state.notes.find(n => n.id === id);
+                if (!item)
+                    return;
+                document.getElementById('noteModalTitle').textContent = 'Edit Note';
+                document.getElementById('noteId').value = item.id;
+                document.getElementById('noteTitle').value = item.title || '';
+                document.getElementById('noteBody').value = item.body || '';
+                document.getElementById('noteUrl').value = item.ref_url || '';
+                openModal('noteModal');
+            }
+            async function saveNote() {
+                const title = document.getElementById('noteTitle').value.trim();
+                const body = document.getElementById('noteBody').value.trim();
+                const ref_url = document.getElementById('noteUrl').value.trim();
+                const id = document.getElementById('noteId').value;
+                if (!title)
+                    return showToast('Title required', 'error');
+                const btn = document.getElementById('saveNoteBtn');
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                const payload = {
+                    title,
+                    body: body || null,
+                    ref_url: ref_url || null,
+                    subject_id: state.currentSubjectId
+                };
+                try {
+                    if (id)
+                        await apiFetch(`/notes?id=eq.${id}`, 'PATCH', payload);
+                    else
+                        await apiFetch('/notes', 'POST', payload);
+                    showToast(`Note ${id ? 'updated' : 'added'}`);
+                    closeModal('noteModal');
+                    loadSubject(state.currentSubjectId);
+                } catch (e) {
+                    showToast('Error saving', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+
+            function toggleDatePicker(e) {
+                e.stopPropagation();
+                const p = document.getElementById('dpPopover');
+                if (!p)
+                    return;
+                if (p.classList.contains('active'))
+                    closeDatePicker();
+                else {
+                    p.classList.add('active');
+                    renderCalendar();
+                }
+            }
+            function closeDatePicker() {
+                document.getElementById('dpPopover')?.classList.remove('active');
+            }
+            function clearDueDate() {
+                document.getElementById('asgDueDate').value = '';
+                document.getElementById('dpDisplay').textContent = 'No due date';
+                closeDatePicker();
+            }
+            function setDatePickerDate(d) {
+                if (!d) {
+                    clearDueDate();
+                    return;
+                }
+                const date = new Date(d);
+                const local = new Date(date.getTime() + Math.abs(date.getTimezoneOffset() * 60000));
+                state.dpCurrentMonth = local.getMonth();
+                state.dpCurrentYear = local.getFullYear();
+                const val = `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
+                document.getElementById('asgDueDate').value = val;
+                document.getElementById('dpDisplay').textContent = formatDate(val);
+            }
+            function changeMonth(delta) {
+                state.dpCurrentMonth += delta;
+                if (state.dpCurrentMonth > 11) {
+                    state.dpCurrentMonth = 0;
+                    state.dpCurrentYear++;
+                }
+                if (state.dpCurrentMonth < 0) {
+                    state.dpCurrentMonth = 11;
+                    state.dpCurrentYear--;
+                }
+                renderCalendar();
+            }
+            function renderCalendar() {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                document.getElementById('dpMonthYear').textContent = `${months[state.dpCurrentMonth]} ${state.dpCurrentYear}`;
+
+                const grid = document.getElementById('dpGrid');
+                if (!grid)
+                    return;
+                grid.innerHTML = '';
+                ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
+                    const dn = document.createElement('div');
+                    dn.className = 'dp-day-name';
+                    dn.textContent = d;
+                    grid.appendChild(dn);
+                }
+                );
+
+                const firstDay = new Date(state.dpCurrentYear,state.dpCurrentMonth,1).getDay();
+                const daysInMo = new Date(state.dpCurrentYear,state.dpCurrentMonth + 1,0).getDate();
+                const storedVal = document.getElementById('asgDueDate')?.value || '';
+                const [sy,sm,sd] = storedVal ? storedVal.split('-').map(Number) : [0, 0, 0];
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                for (let i = 0; i < firstDay; i++)
+                    grid.appendChild(document.createElement('div'));
+
+                for (let i = 1; i <= daysInMo; i++) {
+                    const cell = new Date(state.dpCurrentYear,state.dpCurrentMonth,i);
+                    const isPast = cell < today;
+                    const isSel = sy === state.dpCurrentYear && (sm - 1) === state.dpCurrentMonth && sd === i;
+                    const div = document.createElement('div');
+                    div.className = `dp-day ${isSel ? 'selected' : ''} ${isPast ? 'disabled' : ''}`;
+                    div.textContent = i;
+                    if (!isPast) {
+                        div.onclick = (e) => {
+                            e.stopPropagation();
+                            const newVal = `${state.dpCurrentYear}-${String(state.dpCurrentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                            document.getElementById('asgDueDate').value = newVal;
+                            document.getElementById('dpDisplay').textContent = formatDate(newVal);
+                            closeDatePicker();
+                            renderCalendar();
+                        }
+                        ;
+                    }
+                    grid.appendChild(div);
+                }
+            }
+
+            let _installPromptEvent = null;
+            window.addEventListener('beforeinstallprompt', e => {
+                e.preventDefault();
+                _installPromptEvent = e;
+                const btn = document.getElementById('installAppBtn');
+                if (btn)
+                    btn.style.display = 'flex';
+            }
+            );
+            async function triggerInstallPrompt() {
+                if (!_installPromptEvent)
+                    return;
+                _installPromptEvent.prompt();
+                await _installPromptEvent.userChoice;
+                _installPromptEvent = null;
+                const btn = document.getElementById('installAppBtn');
+                if (btn)
+                    btn.style.display = 'none';
+            }
+
+            async function init() {
+                initThemes();
+                populateSubjectDropdown();
+
+                if ('serviceWorker'in navigator) {
+                    navigator.serviceWorker.register('/sw.js').catch( () => {}
+                    );
+                }
+
+                const list = document.getElementById('subjectList');
+                if (list && window.ResizeObserver) {
+                    new ResizeObserver( () => {
+                        const activeEl = document.querySelector('.subject.active');
+                        if (activeEl)
+                            movePill(activeEl, true);
+                    }
+                    ).observe(list);
+                }
+
+                await checkAuth();
+                renderSidebarList();
+                renderAdminControls();
+                switchView('home');
+
+                try {
+                    state.assignments = await apiFetch('/assignments?select=*') || [];
+                    renderSidebarList();
+                    if (state.currentView === 'home')
+                        renderHomeView();
+                    else if (state.currentView === 'subject') {
+                        renderTimeline();
+                        updateProgress();
+                    }
+                } catch (e) {}
+            }
+
+            document.addEventListener('DOMContentLoaded', init);
+        </script>
+    </body>
+</html>
