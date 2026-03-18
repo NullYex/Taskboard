@@ -4552,31 +4552,20 @@
                     const progressWrap = document.getElementById('asgUploadProgress');
                     const progressFill = document.getElementById('asgUploadFill');
                     progressWrap.classList.add('active');
-                    progressFill.style.width = '0%';
+                    progressFill.style.width = '30%';
                     btn.textContent = 'Uploading...';
-
-                    // Animate progress bar (simulated — Supabase doesn't expose XHR progress)
-                    let fakeProgress = 0;
-                    const fakeTimer = setInterval(() => {
-                        fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
-                        progressFill.style.width = fakeProgress + '%';
-                    }, 200);
-
+                    const ext = file.name.split('.').pop();
+                    const path = `questions/${state.currentSubjectId}/${Date.now()}.${ext}`;
                     try {
-                        const ext = file.name.split('.').pop().toLowerCase();
-                        const path = `assignments/${subject_id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                        const { error } = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
+                        const {error} = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
                         if (error) throw error;
                         question_url = supabaseClient.storage.from('assignment-pdfs').getPublicUrl(path).data.publicUrl;
-                        clearInterval(fakeTimer);
                         progressFill.style.width = '100%';
-                        await new Promise(r => setTimeout(r, 300));
                     } catch (e) {
-                        clearInterval(fakeTimer);
                         progressWrap.classList.remove('active');
                         btn.disabled = false;
                         btn.textContent = 'Save';
-                        return showToast('Upload failed: ' + (e.message || 'Unknown error'), 'error');
+                        return showToast('Upload failed: ' + (e.message || ''), 'error');
                     }
                     progressWrap.classList.remove('active');
                     btn.textContent = 'Saving...';
