@@ -2833,6 +2833,21 @@
                         <input type="text" id="asgRemarks" class="input" placeholder="e.g. Submit hardcopy as well">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Question File (PDF/Doc/Image, max 50MB)</label>
+                        <input type="file" id="asgQuestionFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none;" onchange="updateFileLabel('asgQuestionFile','asgQuestionFileLabel')">
+                        <div class="file-pick-row">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('asgQuestionFile').click()">
+                                <svg class="icon"><use href="#ic-upload"/></svg>
+                                Choose File
+                            </button>
+                            <span class="file-pick-name" id="asgQuestionFileLabel">No file chosen</span>
+                        </div>
+                        <div class="upload-progress-wrap" id="asgUploadProgress">
+                            <div class="upload-progress-fill" id="asgUploadFill"></div>
+                        </div>
+                    </div>
+                    <div class="or-divider">— OR —</div>
+                    <div class="form-group">
                         <label class="form-label">Question File URL</label>
                         <input type="url" id="asgQuestionUrl" class="input" placeholder="https://...">
                     </div>
@@ -4482,6 +4497,9 @@
                 document.getElementById('asgTitle').value = '';
                 document.getElementById('asgRemarks').value = '';
                 document.getElementById('asgQuestionUrl').value = '';
+                document.getElementById('asgQuestionFile').value = '';
+                document.getElementById('asgQuestionFileLabel').textContent = 'No file chosen';
+                document.getElementById('asgUploadProgress').classList.remove('active');
                 document.getElementById('deleteAsgBtn').classList.add('hidden');
                 const sel = document.getElementById('asgSubject');
                 if (sel && state.currentSubjectId)
@@ -4500,6 +4518,9 @@
                 document.getElementById('asgSubject').value = asg.subject_id;
                 document.getElementById('asgRemarks').value = asg.remarks || '';
                 document.getElementById('asgQuestionUrl').value = asg.question_url || '';
+                document.getElementById('asgQuestionFile').value = '';
+                document.getElementById('asgQuestionFileLabel').textContent = asg.question_url ? '(existing file — choose to replace)' : 'No file chosen';
+                document.getElementById('asgUploadProgress').classList.remove('active');
                 document.getElementById('deleteAsgBtn').classList.remove('hidden');
                 setDatePickerDate(asg.due_date);
                 openModal('assignmentModal');
@@ -4510,10 +4531,56 @@
                 const subject_id = document.getElementById('asgSubject').value;
                 const due_date = document.getElementById('asgDueDate').value || null;
                 const remarks = document.getElementById('asgRemarks').value.trim();
-                const question_url = document.getElementById('asgQuestionUrl').value.trim();
+                let question_url = document.getElementById('asgQuestionUrl').value.trim();
+                const file = document.getElementById('asgQuestionFile')?.files[0];
 
                 if (!title)
                     return showToast('Title required', 'error');
+
+                const id = document.getElementById('asgId').value;
+                const btn = document.getElementById('saveAsgBtn');
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                // ── File upload (if a file was chosen) ──────────────────────
+                if (file) {
+                    if (file.size > 50 * 1024 * 1024) {
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('File too large (max 50MB)', 'error');
+                    }
+                    const progressWrap = document.getElementById('asgUploadProgress');
+                    const progressFill = document.getElementById('asgUploadFill');
+                    progressWrap.classList.add('active');
+                    progressFill.style.width = '0%';
+                    btn.textContent = 'Uploading...';
+
+                    // Animate progress bar (simulated — Supabase doesn't expose XHR progress)
+                    let fakeProgress = 0;
+                    const fakeTimer = setInterval(() => {
+                        fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+                        progressFill.style.width = fakeProgress + '%';
+                    }, 200);
+
+                    try {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        const path = `assignments/${subject_id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+                        const { error } = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
+                        if (error) throw error;
+                        question_url = supabaseClient.storage.from('assignment-pdfs').getPublicUrl(path).data.publicUrl;
+                        clearInterval(fakeTimer);
+                        progressFill.style.width = '100%';
+                        await new Promise(r => setTimeout(r, 300));
+                    } catch (e) {
+                        clearInterval(fakeTimer);
+                        progressWrap.classList.remove('active');
+                        btn.disabled = false;
+                        btn.textContent = 'Save';
+                        return showToast('Upload failed: ' + (e.message || 'Unknown error'), 'error');
+                    }
+                    progressWrap.classList.remove('active');
+                    btn.textContent = 'Saving...';
+                }
 
                 const payload = {
                     title,
@@ -4522,10 +4589,7 @@
                     remarks: remarks || null,
                     question_url: question_url || null
                 };
-                const id = document.getElementById('asgId').value;
-                const btn = document.getElementById('saveAsgBtn');
-                btn.disabled = true;
-                btn.textContent = 'Saving...';
+
                 try {
                     if (id)
                         await apiFetch(`/assignments?id=eq.${id}`, 'PATCH', payload);
