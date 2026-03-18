@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-theme="default" data-mode="dark">
     <head>
@@ -4555,7 +4556,7 @@
                     progressFill.style.width = '30%';
                     btn.textContent = 'Uploading...';
                     const ext = file.name.split('.').pop();
-                    const path = `questions/${state.currentSubjectId}/${Date.now()}.${ext}`;
+                    const path = `notes/${state.currentSubjectId}/${Date.now()}.${ext}`;
                     try {
                         const {error} = await supabaseClient.storage.from('assignment-pdfs').upload(path, file);
                         if (error) throw error;
