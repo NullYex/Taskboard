@@ -61,6 +61,13 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="application-name" content="TaskBoard">
+        <meta name="apple-touch-fullscreen" content="yes">
+        <meta name="apple-mobile-web-app-title" content="TaskBoard">
+        <meta name="msapplication-TileColor" content="#0a0a0a">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-192.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -182,6 +189,9 @@
                 height: 100dvh;
                 overflow: hidden;
                 -webkit-font-smoothing: antialiased;
+                -webkit-tap-highlight-color: transparent; /* Remove tap flash on iOS */
+                touch-action: manipulation; /* Disable double-tap zoom */
+                overscroll-behavior: none; /* Prevent pull-to-refresh on PWA */
             }
 
             ::-webkit-scrollbar {
@@ -216,6 +226,25 @@
 
             .hidden {
                 display: none !important;
+            }
+
+            /* Views need flex layout when visible */
+            #welcomeView:not(.hidden) {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+            }
+
+            #subjectView:not(.hidden),
+            #noticesView:not(.hidden) {
+                display: block;
+            }
+
+            #coverPageView:not(.hidden) {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                overflow: hidden;
             }
 
             .mono {
@@ -579,6 +608,8 @@
                 background-color: var(--bg-dark);
                 position: relative;
                 scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                overscroll-behavior-y: contain;
             }
 
             .mobile-header {
@@ -1091,6 +1122,7 @@
             .modal-body {
                 padding: 20px;
                 overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 flex: 1;
             }
 
@@ -1353,6 +1385,7 @@
                 inset: 0;
                 background: rgba(0,0,0,0.6);
                 backdrop-filter: blur(2px);
+                -webkit-backdrop-filter: blur(2px);
                 z-index: 95;
                 opacity: 0;
                 transition: opacity 0.3s;
@@ -1624,9 +1657,233 @@
                 font-size: 0.8rem;
             }
 
+            /* ── File Pick Row (index1.html enhancement) ──────────────────── */
+            .file-pick-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-top: 4px;
+            }
+
+            .file-pick-name {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+            }
+
+            /* ── Complaint / Ticket styles ──────────────────────────────────── */
+            .type-pill {
+                flex: 1;
+                justify-content: center;
+                transition: all 0.2s;
+            }
+
+            .type-pill.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+            }
+
+            .ticket {
+                padding: 16px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                margin-bottom: 12px;
+                background: var(--panel-bg);
+                transition: border-color 0.2s;
+            }
+
+            .ticket.unread {
+                border-left: 3px solid var(--warning);
+            }
+
+            .ticket:hover {
+                border-color: var(--border-focus);
+            }
+
+            .ticket-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 8px;
+            }
+
+            .ticket-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.65rem;
+                font-weight: 700;
+                font-family: var(--font-mono);
+                background: rgba(212, 160, 23, 0.12);
+                color: var(--warning);
+                white-space: nowrap;
+                letter-spacing: 0.03em;
+            }
+
+            .ticket-badge.complaint {
+                background: rgba(224, 80, 80, 0.1);
+                color: var(--danger);
+            }
+
+            /* ── Subject search bar ─────────────────────────────────────────── */
+            .subject-search-wrap {
+                padding: 0 12px 8px;
+                flex-shrink: 0;
+            }
+
+            .subject-search {
+                width: 100%;
+                padding: 7px 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                background: var(--bg-dark);
+                color: var(--text-main);
+                font-size: 0.8rem;
+                font-family: var(--font-family);
+                outline: none;
+                transition: border-color 0.2s;
+            }
+
+            .subject-search:focus {
+                border-color: var(--accent);
+            }
+
+            .sidebar.collapsed .subject-search-wrap {
+                display: none;
+            }
+
+            /* ── Upload progress bar ────────────────────────────────────────── */
+            .upload-progress-wrap {
+                width: 100%;
+                height: 4px;
+                background: var(--border);
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+                display: none;
+            }
+
+            .upload-progress-wrap.active {
+                display: block;
+            }
+
+            .upload-progress-fill {
+                height: 100%;
+                background: var(--accent);
+                border-radius: 2px;
+                transition: width 0.3s ease;
+                width: 0%;
+            }
+
+            /* ── Stats bar on home ──────────────────────────────────────────── */
+            .stats-bar {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+                margin-bottom: 40px;
+            }
+
+            .stat-card {
+                background: var(--panel-bg);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 20px 24px;
+                flex: 1;
+                min-width: 140px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                transition: border-color 0.2s, transform 0.2s;
+                cursor: default;
+            }
+
+            .stat-card:hover {
+                border-color: var(--border-focus);
+                transform: translateY(-2px);
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 700;
+                font-family: var(--font-mono);
+                color: var(--accent);
+                line-height: 1;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-weight: 600;
+            }
+
+            /* ── Breadcrumb ─────────────────────────────────────────────────── */
+            .breadcrumb {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-bottom: 16px;
+                flex-wrap: wrap;
+            }
+
+            .breadcrumb-item {
+                cursor: pointer;
+                transition: color 0.15s;
+            }
+
+            .breadcrumb-item:hover {
+                color: var(--accent);
+            }
+
+            .breadcrumb-sep {
+                font-size: 0.65rem;
+                opacity: 0.5;
+            }
+
+            .breadcrumb-item.current {
+                color: var(--text-main);
+                font-weight: 500;
+                cursor: default;
+                pointer-events: none;
+            }
+
+            /* ── Keyboard shortcut chips ────────────────────────────────────── */
+            .kbd-hint {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            kbd {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1px 5px;
+                border: 1px solid var(--border-focus);
+                border-radius: 4px;
+                background: var(--panel-bg-alt);
+                font-size: 0.6rem;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+                line-height: 1.5;
+            }
+
             @media (max-width: 1024px) {
                 .content-grid {
-                    gap: 48px;
+                    gap: 40px;
                 }
 
                 .workspace-content {
@@ -1634,6 +1891,7 @@
                 }
             }
 
+            /* ── Tablet (768px) ─────────────────────────────────────────────── */
             @media (max-width: 768px) {
                 .desktop-toggle {
                     display: none !important;
@@ -1648,6 +1906,8 @@
                     left: -260px;
                     height: 100dvh;
                     box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+                    /* Safe area: don't bleed under home bar */
+                    padding-bottom: env(safe-area-inset-bottom, 0px);
                 }
 
                 .sidebar.mobile-open {
@@ -1666,22 +1926,45 @@
 
                 .mobile-header {
                     display: flex;
+                    /* Account for iOS notch/status bar */
+                    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+                }
+
+                .workspace {
+                    /* Keep content above iOS bottom home indicator */
+                    padding-bottom: env(safe-area-inset-bottom, 0px);
                 }
 
                 .workspace-content {
-                    padding: 24px;
+                    padding: 24px 20px;
+                    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
                 }
 
                 .workspace-header h1 {
                     font-size: 1.75rem;
                 }
 
+                .quick-actions {
+                    gap: 8px;
+                    margin-bottom: 32px;
+                }
+
                 .quick-actions .btn {
-                    flex: 1 1 calc(50% - 6px);
+                    flex: 1 1 calc(50% - 4px);
+                    min-height: 44px; /* iOS minimum touch target */
+                }
+
+                .stats-bar {
+                    gap: 10px;
+                }
+
+                .stat-card {
+                    min-width: 100px;
+                    padding: 14px 16px;
                 }
 
                 .toast-container {
-                    bottom: 16px;
+                    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
                     right: 16px;
                     left: 16px;
                 }
@@ -1699,10 +1982,149 @@
                     border-bottom: 1px solid var(--border);
                     width: 100%;
                 }
+
+                /* Touch-friendly task checkboxes */
+                .task-checkbox {
+                    width: 28px;
+                    height: 28px;
+                    top: 10px;
+                    right: 10px;
+                }
+
+                /* Larger modal on mobile */
+                .modal {
+                    max-height: calc(95vh - env(safe-area-inset-bottom, 0px));
+                    border-bottom-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                    align-self: flex-end;
+                    margin: 0;
+                    max-width: 100%;
+                    transform: translateY(40px);
+                }
+
+                .modal-overlay {
+                    align-items: flex-end;
+                    padding: 0;
+                }
+
+                .modal-overlay.active .modal {
+                    transform: translateY(0);
+                }
+
+                /* Icon buttons: bigger tap target */
+                .icon-btn {
+                    width: 40px;
+                    height: 40px;
+                }
+
+                /* Subject items: taller for touch */
+                .subject {
+                    min-height: 44px;
+                }
+
+                /* Task actions: full-width on mobile */
+                .task-actions {
+                    flex-direction: column;
+                }
+
+                .task-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
             }
+
+            /* ── Small phone (480px) ────────────────────────────────────────── */
+            @media (max-width: 480px) {
+                .workspace-header h1 {
+                    font-size: 1.5rem;
+                }
+
+                .quick-actions .btn {
+                    font-size: 0.8rem;
+                    padding: 8px 12px;
+                }
+
+                .stats-bar {
+                    gap: 8px;
+                }
+
+                .stat-card {
+                    padding: 12px 14px;
+                    min-width: 80px;
+                }
+
+                .stat-value {
+                    font-size: 1.5rem;
+                }
+
+                .stat-label {
+                    font-size: 0.7rem;
+                }
+
+                .modal-body {
+                    padding: 12px 16px;
+                }
+
+                .modal-header {
+                    padding: 14px 16px;
+                }
+
+                .modal-footer {
+                    padding: 10px 16px;
+                }
+
+                .btn {
+                    min-height: 44px;
+                }
+
+                .cp-a4 {
+                    zoom: 0.5;
+                }
+
+                .task-title {
+                    font-size: 0.95rem;
+                }
+
+                .section-title {
+                    font-size: 0.75rem;
+                }
+            }
+
+            /* ── PWA standalone mode (home screen) ──────────────────────────── */
+            @media (display-mode: standalone) {
+                .mobile-header {
+                    padding-top: calc(16px + env(safe-area-inset-top, 20px));
+                }
+
+                body {
+                    /* Prevent rubber-band bounce on iOS in PWA mode */
+                    overscroll-behavior: none;
+                }
+
+                .workspace {
+                    /* Keep scrolling within workspace, not full page */
+                    overscroll-behavior-y: contain;
+                }
+            }
+
+            /* ── Pull-to-refresh indicator ──────────────────────────────────── */
+            .ptr-indicator {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+                flex-shrink: 0;
+            }
+
         </style>
     </head>
     <body>
+        <!-- Offline Banner -->
+        <div id="offlineBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:var(--danger); color:#fff; padding:8px 16px; font-size:0.8rem; font-weight:600; align-items:center; justify-content:center; gap:8px; text-align:center; padding-top:calc(8px + env(safe-area-inset-top,0px));">
+            <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            You are offline — showing cached data
+        </div>
+
         <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
             <symbol id="ic-home" viewBox="0 0 24 24">
                 <path d="M5 12l-2 0l9-9l9 9l-2 0"/>
@@ -1926,6 +2348,16 @@
                         </button>
                     </div>
                 </div>
+                <div class="subject-search-wrap">
+                    <input
+                        type="text"
+                        class="subject-search"
+                        id="subjectSearchInput"
+                        placeholder="Search subjects..."
+                        oninput="filterSidebarSubjects(this.value)"
+                        autocomplete="off"
+                    >
+                </div>
                 <div class="subject-list" id="subjectList">
                     <div id="sidebarActivePill"></div>
                 </div>
@@ -1984,7 +2416,7 @@
                     </div>
                 </div>
                 <div class="workspace-content" id="workspaceContent">
-                    <div id="welcomeView" class="hidden" style="display: flex; flex-direction: column; flex: 1;"></div>
+                    <div id="welcomeView" class="hidden"></div>
                     <div id="subjectView" class="hidden">
                         <div class="workspace-header">
                             <h1 id="subjectTitle">Subject Name</h1>
@@ -2074,7 +2506,7 @@
                         </div>
                         <div id="noticesList" class="resources-list" style="margin-top: 32px; max-width: 900px;"></div>
                     </div>
-                    <div id="coverPageView" class="hidden" style="display:flex; flex-direction:column; flex:1; overflow: hidden;">
+                    <div id="coverPageView" class="hidden">
                         <div class="workspace-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 0; flex-shrink: 0;">
                             <div>
                                 <h1>Cover Page</h1>
@@ -2442,7 +2874,16 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">File Upload (PDF/Doc/Image, max 50MB)</label>
-                        <input type="file" id="sylFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                        <input type="file" id="sylFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none;" onchange="updateFileLabel('sylFile','sylFileLabel')">
+                        <div class="file-pick-row">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('sylFile').click()">
+                                <svg class="icon">
+                                    <use href="#ic-upload"/>
+                                </svg>
+                                Choose File
+                            </button>
+                            <span class="file-pick-name" id="sylFileLabel">No file chosen</span>
+                        </div>
                     </div>
                     <div class="or-divider">— OR —</div>
                     <div class="form-group">
@@ -2478,7 +2919,16 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">File Upload (PDF/Doc/Image, max 50MB)</label>
-                        <input type="file" id="noteFile" class="input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                        <input type="file" id="noteFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none;" onchange="updateFileLabel('noteFile','noteFileLabel')">
+                        <div class="file-pick-row">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('noteFile').click()">
+                                <svg class="icon">
+                                    <use href="#ic-upload"/>
+                                </svg>
+                                Choose File
+                            </button>
+                            <span class="file-pick-name" id="noteFileLabel">No file chosen</span>
+                        </div>
                     </div>
                     <div class="or-divider">— OR —</div>
                     <div class="form-group">
@@ -2600,60 +3050,73 @@
                 console.error('Supabase init error:', e);
             }
 
-            const SUBJECTS = [{
-                id: 'sub_1',
-                name: 'Engineering Mathematics\u2013II',
-                teacher: 'Prof. Deepa Mandal'
-            }, {
-                id: 'sub_2',
-                name: 'Engineering Chemistry',
-                teacher: 'Dr. ChandraPrabha Sahu'
-            }, {
-                id: 'sub_3',
-                name: 'Programming with Python',
-                teacher: 'IBM SUBJECT EXPERT'
-            }, {
-                id: 'sub_4',
-                name: 'English for Skill Enhancement',
-                teacher: 'Dr. Monika Singh'
-            }, {
-                id: 'sub_5',
-                name: 'Universal Human Values',
-                teacher: 'Dr Binod Kumar Choudhary'
-            }, {
-                id: 'sub_6',
-                name: 'Manufacturing Practice',
-                teacher: 'Dr. Shailendra kr Prashad'
-            }, {
-                id: 'sub_7',
-                name: 'Constitution Of India',
-                teacher: 'Dr. Prem Nath Suman'
-            }, {
-                id: 'sub_8',
-                name: 'Engineering Chemistry Lab',
-                teacher: 'Mr. Abhijit Mandal',
-                isLab: true
-            }, {
-                id: 'sub_9',
-                name: 'Programming with Python Lab',
-                teacher: 'IBM SUBJECT EXPERT',
-                isLab: true
-            }, {
-                id: 'sub_10',
-                name: 'Design Thinking & Idea Lab',
-                teacher: 'Mr. Santosh Kumar Sah',
-                isLab: true
-            }, {
-                id: 'sub_11',
-                name: 'Engineering Workshop',
-                teacher: 'Mr. Jai Narayan',
-                isLab: true
-            }, {
-                id: 'sub_12',
-                name: 'English Language & Comm. Lab',
-                teacher: 'Dr. Monika Singh',
-                isLab: true
-            }];
+            const SUBJECTS = [
+                {
+                    id: 'sub_1',
+                    name: 'Engineering Mathematics\u2013II',
+                    teacher: 'Prof. Deepa Mandal'
+                },
+                {
+                    id: 'sub_2',
+                    name: 'Engineering Chemistry',
+                    teacher: 'Dr. ChandraPrabha Sahu'
+                },
+                {
+                    id: 'sub_3',
+                    name: 'Programming with Python',
+                    teacher: 'IBM SUBJECT EXPERT'
+                },
+                {
+                    id: 'sub_4',
+                    name: 'English for Skill Enhancement',
+                    teacher: 'Dr. Monika Singh'
+                },
+                {
+                    id: 'sub_5',
+                    name: 'Universal Human Values',
+                    teacher: 'Dr Binod Kumar Choudhary'
+                },
+                {
+                    id: 'sub_6',
+                    name: 'Manufacturing Practice',
+                    teacher: 'Dr. Shailendra kr Prashad'
+                },
+                {
+                    id: 'sub_7',
+                    name: 'Constitution Of India',
+                    teacher: 'Dr. Prem Nath Suman'
+                },
+                {
+                    id: 'sub_8',
+                    name: 'Engineering Chemistry Lab',
+                    teacher: 'Mr. Abhijit Mandal',
+                    isLab: true
+                },
+                {
+                    id: 'sub_9',
+                    name: 'Programming with Python Lab',
+                    teacher: 'IBM SUBJECT EXPERT',
+                    isLab: true
+                },
+                {
+                    id: 'sub_10',
+                    name: 'Design Thinking & Idea Lab',
+                    teacher: 'Mr. Santosh Kumar Sah',
+                    isLab: true
+                },
+                {
+                    id: 'sub_11',
+                    name: 'Engineering Workshop',
+                    teacher: 'Mr. Jai Narayan',
+                    isLab: true
+                },
+                {
+                    id: 'sub_12',
+                    name: 'English Language & Comm. Lab',
+                    teacher: 'Dr. Monika Singh',
+                    isLab: true
+                }
+            ];
 
             const state = {
                 user: null,
@@ -2817,7 +3280,7 @@
                     const {error} = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: 'https://nullyex.com/Taskboard/'
+                            redirectTo: window.location.href.split('?')[0].split('#')[0]
                         }
                     });
                     if (error)
@@ -3032,11 +3495,38 @@
                 const wv = document.getElementById('welcomeView');
                 if (!wv)
                     return;
+                const stats = buildHomeStats();
 
                 wv.innerHTML = `
                 <div class="workspace-header">
                     <h1>Home</h1>
-                    <div class="subject-meta">Your overview and recent updates</div>
+                    <div class="subject-meta">
+                        <span>Overview &amp; recent updates</span>
+                        <div class="meta-divider"></div>
+                        <span class="kbd-hint">Press <kbd>/</kbd> to search subjects</span>
+                    </div>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.subjects}</div>
+                        <div class="stat-label">Subjects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total}</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:var(--warning);">${stats.pending}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:var(--success);">${stats.done}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:${stats.overdue > 0 ? 'var(--danger)' : 'var(--success)'};">${stats.overdue}</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
                 </div>
                 <div class="content-grid" style="display:flex; flex-direction:column; gap:48px; max-width:900px;">
                     <div>
@@ -3185,8 +3675,9 @@
                         once: true
                     });
 
+                    pushViewState(view);
                     if (view === 'home')
-                        renderHomeView();
+                        renderHomeView().catch(e => console.warn('renderHomeView:', e));
                     renderSidebarList();
                     renderAdminControls();
 
@@ -3276,7 +3767,7 @@
                 pill.style.height = elRect.height + 'px';
             }
 
-            function renderSidebarList() {
+            function renderSidebarList(filterQuery) {
                 const list = document.getElementById('subjectList');
                 if (!list)
                     return;
@@ -3285,6 +3776,9 @@
                 if (pill)
                     list.appendChild(pill);
 
+                const query = (filterQuery || '').toLowerCase().trim();
+                const semSubjects = SUBJECTS;
+
                 const createItem = (id, icon, name, isView, onClick) => {
                     const isActive = isView ? state.currentView === id : (state.currentSubjectId === id && state.currentView === 'subject');
                     const el = document.createElement('div');
@@ -3292,23 +3786,25 @@
                     el.onclick = onClick;
                     el.innerHTML = `<div class="subject-content"><div class="subject-icon">${icon}</div><span class="subject-name">${name}</span></div>`;
                     return el;
-                }
-                ;
+                };
 
-                list.appendChild(createItem('home', '<svg class="icon"><use href="#ic-home"/></svg>', 'Home', true, () => switchView('home')));
-                list.appendChild(createItem('cover_page', 'CP', 'Cover Page', true, () => switchView('cover_page')));
-                list.appendChild(createItem('notices', 'GN', 'General Notices', true, () => {
-                    switchView('notices');
-                    loadNotices();
+                // Always show nav items unless searching
+                if (!query) {
+                    list.appendChild(createItem('home', '<svg class="icon"><use href="#ic-home"/></svg>', 'Home', true, () => switchView('home')));
+                    list.appendChild(createItem('cover_page', 'CP', 'Cover Page', true, () => switchView('cover_page')));
+                    list.appendChild(createItem('notices', 'GN', 'General Notices', true, () => {
+                        switchView('notices');
+                        loadNotices();
+                    }));
                 }
-                ));
 
                 const lbl1 = document.createElement('div');
                 lbl1.className = 'nav-section-label';
                 lbl1.textContent = 'Subjects';
                 list.appendChild(lbl1);
 
-                SUBJECTS.filter(s => !s.isLab).forEach(sub => {
+                const regularSubs = semSubjects.filter(s => !s.isLab && (!query || s.name.toLowerCase().includes(query) || s.teacher.toLowerCase().includes(query)));
+                regularSubs.forEach(sub => {
                     const words = sub.name.split(' ');
                     const icon = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : sub.name.substring(0, 2).toUpperCase();
                     const el = createItem(sub.id, icon, sub.name, false, () => loadSubject(sub.id));
@@ -3316,30 +3812,41 @@
                     if (pending > 0)
                         el.innerHTML += `<div class="subject-count">${pending}</div>`;
                     list.appendChild(el);
+                });
+
+                if (regularSubs.length === 0 && query) {
+                    const noRes = document.createElement('div');
+                    noRes.style.cssText = 'padding:12px; font-size:0.78rem; color:var(--text-muted); text-align:center;';
+                    noRes.textContent = 'No subjects found';
+                    list.appendChild(noRes);
                 }
-                );
 
-                const lbl2 = document.createElement('div');
-                lbl2.className = 'nav-section-label';
-                lbl2.textContent = 'Lab Records';
-                list.appendChild(lbl2);
+                const labSubs = semSubjects.filter(s => s.isLab && (!query || s.name.toLowerCase().includes(query) || s.teacher.toLowerCase().includes(query)));
+                if (labSubs.length > 0) {
+                    const lbl2 = document.createElement('div');
+                    lbl2.className = 'nav-section-label';
+                    lbl2.textContent = 'Lab Records';
+                    list.appendChild(lbl2);
 
-                SUBJECTS.filter(s => s.isLab).forEach(sub => {
-                    const words = sub.name.split(' ');
-                    const icon = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : sub.name.substring(0, 2).toUpperCase();
-                    const el = createItem(sub.id, icon, sub.name, false, () => loadSubject(sub.id));
-                    const pending = state.assignments.filter(a => a.subject_id === sub.id && !isCompletedByUser(a.id)).length;
-                    if (pending > 0)
-                        el.innerHTML += `<div class="subject-count">${pending}</div>`;
-                    list.appendChild(el);
+                    labSubs.forEach(sub => {
+                        const words = sub.name.split(' ');
+                        const icon = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : sub.name.substring(0, 2).toUpperCase();
+                        const el = createItem(sub.id, icon, sub.name, false, () => loadSubject(sub.id));
+                        const pending = state.assignments.filter(a => a.subject_id === sub.id && !isCompletedByUser(a.id)).length;
+                        if (pending > 0)
+                            el.innerHTML += `<div class="subject-count">${pending}</div>`;
+                        list.appendChild(el);
+                    });
                 }
-                );
 
-                requestAnimationFrame( () => {
+                requestAnimationFrame(() => {
                     const activeEl = list.querySelector('.subject.active');
                     movePill(activeEl, false);
-                }
-                );
+                });
+            }
+
+            function filterSidebarSubjects(query) {
+                renderSidebarList(query);
             }
 
             function renderAdminControls() {
@@ -4434,23 +4941,100 @@
                     btn.style.display = 'none';
             }
 
+            // ── updateFileLabel (from index1.html) ──────────────────────────
+            function updateFileLabel(inputId, labelId) {
+                const input = document.getElementById(inputId);
+                const label = document.getElementById(labelId);
+                if (!input || !label)
+                    return;
+                const file = input.files[0];
+                label.textContent = file ? file.name : 'No file chosen';
+            }
+
+            // ── populateSubjectDropdown ─────────────────────────────────────
+            // Used in assignment modal subject selector — always uses full SUBJECTS
+            function populateSubjectDropdown() {
+                const sel = document.getElementById('asgSubject');
+                if (!sel)
+                    return;
+                sel.innerHTML = '';
+                const grpTheory = document.createElement('optgroup');
+                grpTheory.label = 'Theory';
+                const grpLab = document.createElement('optgroup');
+                grpLab.label = 'Lab';
+                SUBJECTS.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    if (s.id === state.currentSubjectId) opt.selected = true;
+                    (s.isLab ? grpLab : grpTheory).appendChild(opt);
+                });
+                sel.appendChild(grpTheory);
+                sel.appendChild(grpLab);
+            }
+
+            // ── Keyboard shortcuts ──────────────────────────────────────────
+            document.addEventListener('keydown', function(e) {
+                // Escape: close any open modal
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                        m.classList.remove('active');
+                        if (m.id === 'assignmentModal')
+                            closeDatePicker();
+                    });
+                    return;
+                }
+
+                // Skip if inside an input / textarea
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')
+                    return;
+
+                // H = go home
+                if (e.key === 'h' || e.key === 'H') {
+                    switchView('home');
+                }
+                // N = general notices
+                if (e.key === 'n' || e.key === 'N') {
+                    switchView('notices');
+                    loadNotices();
+                }
+                // C = cover page
+                if (e.key === 'c' || e.key === 'C') {
+                    switchView('cover_page');
+                }
+                // / = focus search
+                if (e.key === '/') {
+                    e.preventDefault();
+                    document.getElementById('subjectSearchInput')?.focus();
+                }
+            });
+
+            // ── Home stats helper ────────────────────────────────────────────
+            function buildHomeStats() {
+                const allIds = new Set(SUBJECTS.map(s => s.id));
+                const allAsgs = state.assignments.filter(a => allIds.has(a.subject_id));
+                const pending = allAsgs.filter(a => !isCompletedByUser(a.id)).length;
+                const done = allAsgs.filter(a => isCompletedByUser(a.id)).length;
+                const overdue = allAsgs.filter(a => !isCompletedByUser(a.id) && getDaysDiff(a.due_date) < 0).length;
+                return { total: allAsgs.length, pending, done, overdue, subjects: SUBJECTS.filter(s => !s.isLab).length };
+            }
+
             async function init() {
                 initThemes();
                 populateSubjectDropdown();
+                updateOnlineStatus();
 
-                if ('serviceWorker'in navigator) {
-                    navigator.serviceWorker.register('./sw.js').catch( () => {}
-                    );
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('./sw.js').catch(() => {});
                 }
 
                 const list = document.getElementById('subjectList');
                 if (list && window.ResizeObserver) {
-                    new ResizeObserver( () => {
+                    new ResizeObserver(() => {
                         const activeEl = document.querySelector('.subject.active');
                         if (activeEl)
                             movePill(activeEl, true);
-                    }
-                    ).observe(list);
+                    }).observe(list);
                 }
 
                 await checkAuth();
@@ -4462,13 +5046,117 @@
                     state.assignments = await apiFetch('/assignments?select=*') || [];
                     renderSidebarList();
                     if (state.currentView === 'home')
-                        renderHomeView();
+                        await renderHomeView();
                     else if (state.currentView === 'subject') {
                         renderTimeline();
                         updateProgress();
                     }
-                } catch (e) {}
+                } catch (e) {
+                    // Still render home even if API fails (shows empty state)
+                    if (state.currentView === 'home')
+                        await renderHomeView().catch(() => {});
+                }
             }
+
+
+
+            // ── History / Back button support for PWA ───────────────────────
+            // Detect if running inside an iframe / srcdoc (e.g. preview) — skip history API there
+            const _canUseHistory = (() => {
+                try {
+                    return window.self === window.top && window.location.protocol !== 'about:';
+                } catch (e) {
+                    return false;
+                }
+            })();
+
+            function pushViewState(view) {
+                if (!_canUseHistory) return;
+                try {
+                    if (history.state?.view !== view) {
+                        history.pushState({ view }, '', '#' + view);
+                    }
+                } catch (e) { /* silently skip in restricted contexts */ }
+            }
+
+            if (_canUseHistory) {
+                window.addEventListener('popstate', e => {
+                    const view = e.state?.view || 'home';
+                    // Close any open modal first
+                    const openModal = document.querySelector('.modal-overlay.active');
+                    if (openModal) {
+                        openModal.classList.remove('active');
+                        try { history.pushState({ view: state.currentView }, '', '#' + state.currentView); } catch(e) {}
+                        return;
+                    }
+                    if (view === 'home') switchView('home');
+                    else if (view === 'notices') { switchView('notices'); loadNotices(); }
+                    else if (view === 'cover_page') switchView('cover_page');
+                    else {
+                        const sub = SUBJECTS.find(s => s.id === view);
+                        if (sub) loadSubject(sub.id);
+                        else switchView('home');
+                    }
+                });
+            }
+
+            // ── Offline / Online detection ──────────────────────────────────
+            function updateOnlineStatus() {
+                const banner = document.getElementById('offlineBanner');
+                if (!banner) return;
+                if (!navigator.onLine) {
+                    banner.style.display = 'flex';
+                } else {
+                    banner.style.display = 'none';
+                }
+            }
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+
+            // ── Pull-to-refresh (mobile workspace) ──────────────────────────
+            (function() {
+                const workspace = document.querySelector('.workspace');
+                if (!workspace) return;
+                let startY = 0;
+                let pulling = false;
+                let indicator = null;
+
+                workspace.addEventListener('touchstart', e => {
+                    if (workspace.scrollTop === 0) {
+                        startY = e.touches[0].clientY;
+                        pulling = true;
+                    }
+                }, { passive: true });
+
+                workspace.addEventListener('touchmove', e => {
+                    if (!pulling) return;
+                    const dy = e.touches[0].clientY - startY;
+                    if (dy > 60) {
+                        if (!indicator) {
+                            indicator = document.createElement('div');
+                            indicator.className = 'ptr-indicator';
+                            indicator.innerHTML = '<svg class="icon icon-spin" style="color:var(--accent);width:20px;height:20px;"><use href="#ic-loader"/></svg>';
+                            workspace.prepend(indicator);
+                        }
+                    }
+                }, { passive: true });
+
+                workspace.addEventListener('touchend', async () => {
+                    if (!pulling) return;
+                    pulling = false;
+                    if (indicator) {
+                        try {
+                            // Refresh assignments silently
+                            state.assignments = await apiFetch('/assignments?select=*') || [];
+                            renderSidebarList();
+                            if (state.currentView === 'home') renderHomeView();
+                            else if (state.currentView === 'subject') { renderTimeline(); updateProgress(); }
+                        } catch (e) {}
+                        indicator.remove();
+                        indicator = null;
+                    }
+                }, { passive: true });
+            })();
 
             document.addEventListener('DOMContentLoaded', init);
         </script>
