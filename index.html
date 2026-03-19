@@ -3388,7 +3388,7 @@
                     const {error} = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.href.split('?')[0].split('#')[0]
+                            redirectTo: 'https://nullyex.com/Taskboard/'
                         }
                     });
                     if (error)
