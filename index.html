@@ -71,7 +71,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-192.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
         <style>
@@ -1523,35 +1523,98 @@
                 padding: 40px;
                 display: flex;
                 justify-content: center;
+                align-items: flex-start;
             }
 
+            /* A4 preview — EB Garamond, clean border design */
             .cp-a4 {
                 width: 794px;
                 min-height: 1123px;
                 background: #fff;
-                color: #000;
-                padding: 40px;
-                font-family: 'Times New Roman', serif;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                color: #111;
+                padding: 48px 64px;
+                font-family: 'EB Garamond', 'Times New Roman', Georgia, serif;
+                font-size: 21px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.45);
                 transform-origin: top left;
-            }
-
-            .cp-a4-inner {
-                border: 3px solid #000;
-                padding: 4px;
-                height: 100%;
+                border: 2.5px solid #000;
                 display: flex;
                 flex-direction: column;
+                line-height: 1.65;
             }
 
-            .cp-a4-content {
-                border: 1px solid #000;
-                height: 100%;
-                padding: 36px;
+            /* Logo */
+            .cp-logo-row {
                 display: flex;
-                flex-direction: column;
-                flex: 1;
+                justify-content: center;
+                margin-bottom: 24px;
             }
+            .cp-logo-row img {
+                height: 90px;
+                object-fit: contain;
+                mix-blend-mode: multiply;
+            }
+
+            /* Centre text */
+            .cp-center-block { text-align: center; }
+            .cp-line { display: block; font-size: 21px; color: #111; }
+            .cp-asgno-row {
+                display: flex;
+                justify-content: center;
+                align-items: baseline;
+                margin-top: 4px;
+            }
+            .cp-asgno-label { font-size: 21px; font-weight: 700; color: #111; }
+            #cp-val-asgno { font-size: 21px; font-weight: 700; color: #111; min-width: 30px; }
+
+            /* Field rows */
+            .cp-fields { margin-top: 36px; display: flex; flex-direction: column; }
+            .cp-field-row {
+                display: flex;
+                align-items: baseline;
+                padding: 5px 0;
+                border-bottom: 1px dashed #bbb;
+            }
+            .cp-field-label { font-size: 21px; color: #111; white-space: nowrap; min-width: 180px; }
+            .cp-field-val { font-size: 21px; color: #111; flex: 1; min-height: 1.4em; }
+
+            /* Spacer */
+            .cp-spacer { flex: 1; min-height: 40px; }
+
+            /* Signatures */
+            .cp-sig-row {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 40px;
+                padding-bottom: 6px;
+                font-size: 21px;
+                color: #111;
+            }
+
+            /* Bottom */
+            .cp-bottom-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                margin-top: 28px;
+            }
+            .cp-date-place { display: flex; flex-direction: column; gap: 4px; }
+            .cp-date-row { display: flex; align-items: baseline; gap: 8px; font-size: 21px; color: #111; }
+            .cp-date-row .cp-field-label { min-width: 60px; }
+            .cp-date-val {
+                font-size: 21px; color: #111;
+                border-bottom: 1px dashed #bbb;
+                min-width: 180px; min-height: 1.4em;
+            }
+            .cp-grade-box {
+                border: 2px solid #c00;
+                padding: 10px 28px 10px 18px;
+                display: flex;
+                align-items: baseline;
+                gap: 4px;
+            }
+            .cp-grade-label { font-size: 23px; font-weight: 700; color: #111; }
+            #cp-val-grade { font-size: 23px; font-weight: 700; color: #111; min-width: 80px; min-height: 1.4em; }
 
             .type-pill {
                 transition: all 0.2s;
@@ -2168,6 +2231,7 @@
                     border-bottom: 1px solid var(--border);
                     width: 100%;
                 }
+                .cp-preview-area { padding: 16px; }
 
                 
                 .task-checkbox {
@@ -2805,20 +2869,19 @@
                         <div id="noticesList" class="resources-list" style="margin-top: 32px; max-width: 900px;"></div>
                     </div>
                     <div id="coverPageView" class="hidden">
-                        <div class="workspace-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 0; flex-shrink: 0;">
+                        <div class="workspace-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0; flex-shrink:0;">
                             <div>
                                 <h1>Cover Page</h1>
-                                <div class="subject-meta">Generate Arka Jain University format</div>
+                                <div class="subject-meta">Arka Jain University format</div>
                             </div>
                             <button type="button" class="btn btn-primary" onclick="downloadCoverPage()">
-                                <svg class="icon">
-                                    <use href="#ic-download"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-download"/></svg>
                                 Download PNG
-                        
                             </button>
                         </div>
                         <div class="cp-container">
+
+                            <!-- Form panel -->
                             <div class="cp-form-area">
                                 <div class="form-group">
                                     <label class="form-label">Name</label>
@@ -2833,16 +2896,28 @@
                                     <input type="text" class="input" oninput="updateCP('cp-val-roll',this.value)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Program &amp;Branch</label>
-                                    <input type="text" class="input" placeholder="e.g. B.Tech CSE" oninput="updateCP('cp-val-prog',this.value)">
+                                    <label class="form-label">Program</label>
+                                    <input type="text" class="input" placeholder="e.g. B.Tech" oninput="updateCP('cp-val-prog',this.value)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Semester &amp;Section</label>
-                                    <input type="text" class="input" placeholder="e.g. 4th Sem, Sec A" oninput="updateCP('cp-val-sem',this.value)">
+                                    <label class="form-label">Branch</label>
+                                    <input type="text" class="input" placeholder="e.g. CSE (AI &amp; DS)" oninput="updateCP('cp-val-branch',this.value)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Subject</label>
+                                    <label class="form-label">Semester</label>
+                                    <input type="text" class="input" placeholder="e.g. 2nd" oninput="updateCP('cp-val-sem',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Section</label>
+                                    <input type="text" class="input" placeholder="e.g. A" oninput="updateCP('cp-val-section',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Subject / Course</label>
                                     <input type="text" class="input" id="cp-input-subj" oninput="updateCP('cp-val-subj',this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Batch</label>
+                                    <input type="text" class="input" placeholder="e.g. 2024-28" oninput="updateCP('cp-val-batch',this.value)">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Submitted to</label>
@@ -2856,73 +2931,104 @@
                                     <label class="form-label">Date</label>
                                     <input type="text" class="input" oninput="updateCP('cp-val-date',this.value)">
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-label">Place</label>
+                                    <input type="text" class="input" placeholder="e.g. Jamshedpur" oninput="updateCP('cp-val-place',this.value)">
+                                </div>
                             </div>
+
+                            <!-- A4 preview -->
                             <div class="cp-preview-area">
                                 <div class="cp-a4" id="coverPagePreview">
-                                    <div class="cp-a4-inner">
-                                        <div class="cp-a4-content">
-                                            <div style="text-align:center; margin-bottom:32px;">
-                                                <div style="display:flex; justify-content:center; align-items:center; gap:16px; margin-bottom:20px;">
-                                                    <div style="background:#2b2b5c;color:#fff;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;">JGI</div>
-                                                    <div style="text-align:left;">
-                                                        <div style="color:#2b2b5c;font-size:26px;font-weight:900;line-height:1;">
-                                                            ARKA <span style="color:#c00;">JAIN</span>
-                                                        </div>
-                                                        <div style="color:#2b2b5c;font-size:22px;font-weight:700;line-height:1;">University</div>
-                                                        <div style="font-size:10px;font-weight:700;">Jharkhand</div>
-                                                    </div>
-                                                </div>
-                                                <div style="font-size:20px;margin-bottom:6px;">School of Engineering &amp;IT</div>
-                                                <div style="font-size:18px;margin-bottom:12px;">Department of Computer Science &amp;IT</div>
-                                                <div style="font-size:18px;font-weight:700;">
-                                                    Assignment No: <span id="cp-val-asgno" style="font-weight:400;"></span>
-                                                </div>
-                                            </div>
-                                            <div style="display:flex; flex-direction:column; gap:14px; font-size:17px; margin-bottom:auto;">
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Name:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-name"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Enrollment No:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-enroll"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Roll No:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-roll"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Program &amp;Branch:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-prog"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Sem &amp;Section:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-sem"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Subject:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-subj"></div>
-                                                </div>
-                                                <div style="display:flex;">
-                                                    <div style="width:180px;">Submitted to:</div>
-                                                    <div style="border-bottom:1px dashed #000;flex:1;" id="cp-val-submit"></div>
-                                                </div>
-                                            </div>
-                                            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:48px; font-size:17px;">
-                                                <div style="display:flex;flex-direction:column;gap:10px;">
-                                                    <div style="margin-bottom:50px;">Student's Signature</div>
-                                                    <div style="display:flex;gap:8px;">
-                                                        <div>Date:</div>
-                                                        <div style="border-bottom:1px dashed #000;min-width:140px;" id="cp-val-date"></div>
-                                                    </div>
-                                                </div>
-                                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-                                                    <div style="margin-bottom:50px;">Teacher's Signature</div>
-                                                    <div style="border:2px solid #556b2f; padding:10px 20px; font-size:22px; font-weight:bold; min-width:140px;">Grade:</div>
-                                                </div>
-                                            </div>
+
+                                    <!-- Logo -->
+                                    <div class="cp-logo-row">
+                                        <img src="clg-logo.png" alt="Arka Jain University"
+                                             onerror="this.style.display='none'">
+                                    </div>
+
+                                    <!-- Centre block -->
+                                    <div class="cp-center-block">
+                                        <span class="cp-line">School of Engineering &amp; IT</span>
+                                        <span class="cp-line">Department of Computer Science &amp; IT</span>
+                                        <span class="cp-line">ACADEMIC YEAR – 2025-26</span>
+                                        <span class="cp-line">EVEN &nbsp; SEMESTER</span>
+                                        <div class="cp-asgno-row">
+                                            <span class="cp-asgno-label">Assignment No:&nbsp;</span>
+                                            <span id="cp-val-asgno"></span>
                                         </div>
                                     </div>
+
+                                    <!-- Fields -->
+                                    <div class="cp-fields">
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Name:</span>
+                                            <span class="cp-field-val" id="cp-val-name"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Enrollment No:</span>
+                                            <span class="cp-field-val" id="cp-val-enroll"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Roll No:</span>
+                                            <span class="cp-field-val" id="cp-val-roll"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Program:</span>
+                                            <span class="cp-field-val" id="cp-val-prog"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Branch:</span>
+                                            <span class="cp-field-val" id="cp-val-branch"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Semester:</span>
+                                            <span class="cp-field-val" id="cp-val-sem"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Section:</span>
+                                            <span class="cp-field-val" id="cp-val-section"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Subject/Course:</span>
+                                            <span class="cp-field-val" id="cp-val-subj"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Batch:</span>
+                                            <span class="cp-field-val" id="cp-val-batch"></span>
+                                        </div>
+                                        <div class="cp-field-row">
+                                            <span class="cp-field-label">Submitted to:</span>
+                                            <span class="cp-field-val" id="cp-val-submit"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="cp-spacer"></div>
+
+                                    <!-- Signatures -->
+                                    <div class="cp-sig-row">
+                                        <span>Student's Signature</span>
+                                        <span>Teacher's Signature</span>
+                                    </div>
+
+                                    <!-- Date / Place + Grade -->
+                                    <div class="cp-bottom-row">
+                                        <div class="cp-date-place">
+                                            <div class="cp-date-row">
+                                                <span class="cp-field-label">Date:</span>
+                                                <span class="cp-date-val" id="cp-val-date"></span>
+                                            </div>
+                                            <div class="cp-date-row">
+                                                <span class="cp-field-label">Place:</span>
+                                                <span class="cp-date-val" id="cp-val-place"></span>
+                                            </div>
+                                        </div>
+                                        <div class="cp-grade-box">
+                                            <span class="cp-grade-label">Grade:&nbsp;</span>
+                                            <span id="cp-val-grade"></span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -5168,32 +5274,37 @@
 
             function updateCP(id, val) {
                 const el = document.getElementById(id);
-                if (el)
-                    el.textContent = val;
+                if (el) el.textContent = val;
             }
+
             async function downloadCoverPage() {
                 const el = document.getElementById('coverPagePreview');
+                if (!el) return;
                 if (!window.html2canvas) {
                     const s = document.createElement('script');
                     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
                     document.head.appendChild(s);
-                    await new Promise( (res, rej) => {
-                        s.onload = res;
-                        s.onerror = rej;
-                    }
-                    );
+                    await new Promise((res, rej) => { s.onload = res; s.onerror = rej; });
                 }
+                try { await document.fonts.ready; } catch(e) {}
                 showToast('Generating PNG...');
                 try {
                     const canvas = await html2canvas(el, {
                         scale: 2,
                         useCORS: true,
-                        backgroundColor: '#fff'
+                        allowTaint: true,
+                        backgroundColor: '#fff',
+                        logging: false,
+                        onclone: (doc) => {
+                            const p = doc.getElementById('coverPagePreview');
+                            if (p) { p.style.zoom = '1'; p.style.transform = 'none'; }
+                        }
                     });
                     const link = document.createElement('a');
-                    link.download = 'CoverPage.png';
+                    link.download = 'CoverPage_AJU.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
+                    showToast('Cover page downloaded!');
                 } catch (e) {
                     showToast('Failed to generate PNG', 'error');
                 }
