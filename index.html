@@ -268,9 +268,13 @@
                 border-right: 1px solid var(--border);
                 display: flex;
                 flex-direction: column;
-                transition: width 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.3s ease;
+                transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                            transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 100;
                 overflow-x: hidden;
+                position: relative;
+                will-change: width;
+                flex-shrink: 0;
             }
 
             .sidebar-header {
@@ -309,7 +313,7 @@
             }
 
             .desktop-toggle {
-                display: flex;
+                display: none;
             }
 
             .mobile-toggle {
@@ -439,7 +443,8 @@
                 color: #fff;
             }
 
-            .sidebar.collapsed {
+            .sidebar.collapsed,
+            .sidebar[data-state="collapsed"] {
                 width: 80px;
             }
 
@@ -458,13 +463,14 @@
                 border-radius: 2px;
             }
 
-            .sidebar.collapsed .sidebar-header-top {
-                flex-direction: column;
-                gap: 24px;
+            .sidebar.collapsed .sidebar-header-top,
+            .sidebar[data-state="collapsed"] .sidebar-header-top {
+                justify-content: center;
                 margin-bottom: 16px;
             }
 
-            .sidebar.collapsed .brand {
+            .sidebar.collapsed .brand,
+            .sidebar[data-state="collapsed"] .brand {
                 padding: 0;
             }
 
@@ -495,6 +501,102 @@
             .sidebar.collapsed .subject.active {
                 transform: scale(1.05);
             }
+
+            /* ── Hamburger/X toggle (one button, fixed position) ─────────── */
+            .sb-toggle-wrap {
+                padding: 4px 12px 8px;
+                flex-shrink: 0;
+            }
+            .sb-toggle-btn {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                border-radius: 8px;
+                border: none;
+                background: none;
+                cursor: pointer;
+                color: var(--text-muted);
+                font-size: 0.85rem;
+                font-weight: 500;
+                font-family: var(--font-family);
+                transition: background 0.2s, color 0.2s;
+                white-space: nowrap;
+                overflow: hidden;
+                min-height: 36px;
+                user-select: none;
+            }
+            .sb-toggle-btn:hover { background: var(--border); color: var(--text-main); }
+
+            .sb-toggle-icon {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .sb-bar {
+                display: block;
+                position: absolute;
+                height: 1.5px;
+                background: currentColor;
+                border-radius: 2px;
+                left: 50%;
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                            opacity 0.2s ease, width 0.25s ease;
+            }
+            .sb-bar-t { width: 12px; transform: translate(-50%, -4px); }
+            .sb-bar-m { width:  9px; transform: translate(-50%,  0px); }
+            .sb-bar-b { width: 12px; transform: translate(-50%,  4px); }
+
+            /* expanded = X */
+            .sidebar[data-state="expanded"] .sb-bar-t { width:12px; transform:translate(-50%,0) rotate(45deg); }
+            .sidebar[data-state="expanded"] .sb-bar-m { opacity:0; width:0; transform:translate(-50%,0); }
+            .sidebar[data-state="expanded"] .sb-bar-b { width:12px; transform:translate(-50%,0) rotate(-45deg); }
+
+            /* collapsed = hamburger */
+            .sidebar[data-state="collapsed"] .sb-bar-t { width:12px; transform:translate(-50%,-4px) rotate(0deg); }
+            .sidebar[data-state="collapsed"] .sb-bar-m { opacity:1; width:9px; transform:translate(-50%,0); }
+            .sidebar[data-state="collapsed"] .sb-bar-b { width:12px; transform:translate(-50%,4px) rotate(0deg); }
+
+            /* collapsed: center icon, hide label */
+            .sidebar.collapsed .sb-toggle-btn,
+            .sidebar[data-state="collapsed"] .sb-toggle-btn {
+                justify-content: center;
+                padding: 8px;
+            }
+            .sb-toggle-label {
+                overflow: hidden; text-overflow: ellipsis;
+                transition: opacity 0.2s ease, max-width 0.3s ease;
+                max-width: 160px; opacity: 1;
+            }
+            .sidebar.collapsed .sb-toggle-label,
+            .sidebar[data-state="collapsed"] .sb-toggle-label { max-width:0; opacity:0; }
+
+            /* ── Rail (desktop hover strip) ──────────────────────────────── */
+            .sb-rail {
+                position: absolute;
+                top: 0; bottom: 0; right: -8px;
+                width: 16px; z-index: 20;
+                cursor: w-resize;
+                display: none;
+                align-items: center; justify-content: center;
+            }
+            .sb-rail::after {
+                content: '';
+                position: absolute; inset-block: 0;
+                left: 50%; transform: translateX(-50%);
+                width: 2px; background: var(--accent);
+                border-radius: 2px; opacity: 0;
+                transition: opacity 0.2s;
+            }
+            .sb-rail:hover::after { opacity: 0.45; }
+            .sidebar.collapsed .sb-rail,
+            .sidebar[data-state="collapsed"] .sb-rail { cursor: e-resize; }
+            @media (min-width: 769px) { .sb-rail { display: flex; } }
 
             .sidebar-footer {
                 padding: 16px 12px;
@@ -1988,16 +2090,18 @@
                     left: -260px;
                     height: 100dvh;
                     box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-                    
                     padding-bottom: env(safe-area-inset-bottom, 0px);
+                    will-change: transform;
+                    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 .sidebar.mobile-open {
                     transform: translateX(260px);
                 }
 
-                .sidebar.collapsed {
-                    width: 260px;
+                .sidebar.collapsed,
+                .sidebar[data-state="collapsed"] {
+                    width: 260px !important;
                     left: -260px;
                 }
 
@@ -2190,6 +2294,99 @@
             }
 
             
+
+            /* ════ File Preview System ════ */
+            #imgLightbox {
+                position: fixed; inset: 0; z-index: 500;
+                background: rgba(0,0,0,0.92);
+                backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0; visibility: hidden;
+                transition: opacity 0.25s ease, visibility 0.25s ease;
+            }
+            #imgLightbox.active { opacity: 1; visibility: visible; }
+            #imgLightbox img {
+                max-width: 92vw; max-height: 88vh; object-fit: contain;
+                border-radius: 6px; box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+                transform: scale(0.94); user-select: none; touch-action: pinch-zoom;
+                transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+            }
+            #imgLightbox.active img { transform: scale(1); }
+            .lightbox-toolbar {
+                position: fixed; top: 0; left: 0; right: 0;
+                padding: calc(12px + env(safe-area-inset-top,0px)) 16px 12px;
+                display: flex; align-items: center; justify-content: space-between;
+                background: linear-gradient(to bottom,rgba(0,0,0,0.7),transparent);
+                z-index: 501;
+            }
+            .lightbox-filename {
+                font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.85);
+                font-family: var(--font-mono); overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+            }
+            .lightbox-actions { display: flex; gap: 8px; }
+            .lightbox-btn {
+                min-width: 44px; min-height: 44px; width: 36px; height: 36px;
+                border-radius: 8px; background: rgba(255,255,255,0.12);
+                border: 1px solid rgba(255,255,255,0.15); color: #fff;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; transition: background 0.2s;
+                font-family: inherit; text-decoration: none;
+            }
+            .lightbox-btn:hover { background: rgba(255,255,255,0.22); }
+
+            #fileViewerModal {
+                position: fixed; inset: 0; z-index: 500;
+                background: rgba(0,0,0,0.85);
+                backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                opacity: 0; visibility: hidden;
+                transition: opacity 0.25s ease, visibility 0.25s ease;
+                padding: calc(16px + env(safe-area-inset-top,0px)) 16px
+                         calc(16px + env(safe-area-inset-bottom,0px));
+            }
+            #fileViewerModal.active { opacity: 1; visibility: visible; }
+            .fv-shell {
+                width: 100%; max-width: 900px; height: 100%;
+                max-height: calc(100vh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+                background: var(--panel-bg); border: 1px solid var(--border-focus);
+                border-radius: 12px; box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+                display: flex; flex-direction: column; overflow: hidden;
+                transform: translateY(16px) scale(0.98);
+                transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+            }
+            #fileViewerModal.active .fv-shell { transform: translateY(0) scale(1); }
+            .fv-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 12px 16px; border-bottom: 1px solid var(--border);
+                flex-shrink: 0; gap: 12px;
+            }
+            .fv-title {
+                font-size: 0.85rem; font-weight: 600; font-family: var(--font-mono);
+                color: var(--text-main); overflow: hidden; text-overflow: ellipsis;
+                white-space: nowrap; flex: 1;
+            }
+            .fv-type-badge {
+                font-size: 0.65rem; font-weight: 700; font-family: var(--font-mono);
+                padding: 2px 8px; border-radius: 12px;
+                background: var(--accent-alpha); color: var(--accent);
+                border: 1px solid var(--accent); flex-shrink: 0; letter-spacing: 0.05em;
+            }
+            .fv-actions { display: flex; gap: 6px; flex-shrink: 0; }
+            .fv-body { flex: 1; overflow: hidden; position: relative; background: #1a1a1a; }
+            .fv-body iframe { width: 100%; height: 100%; border: none; display: block; }
+            .fv-loading {
+                position: absolute; inset: 0; display: flex; flex-direction: column;
+                align-items: center; justify-content: center; gap: 12px;
+                color: var(--text-muted); font-size: 0.85rem;
+                background: var(--panel-bg); z-index: 1;
+            }
+            @media (max-width: 768px) {
+                #fileViewerModal { align-items: flex-end; padding: 0 0 env(safe-area-inset-bottom,0px); }
+                .fv-shell { max-width: 100%; max-height: 92dvh; border-radius: 12px 12px 0 0; }
+            }
+
             .ptr-indicator {
                 display: flex;
                 align-items: center;
@@ -2411,7 +2608,7 @@
         </svg>
         <div class="app-container">
             <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
-            <nav class="sidebar" id="sidebar">
+            <nav class="sidebar" id="sidebar" data-state="expanded">
                 <div class="sidebar-header">
                     <div class="sidebar-header-top">
                         <div class="brand">
@@ -2423,12 +2620,19 @@
                             </div>
                             <span class="brand-text">TaskBoard</span>
                         </div>
-                        <button type="button" class="btn btn-ghost btn-icon desktop-toggle" onclick="toggleDesktopSidebar()">
-                            <svg class="icon">
-                                <use href="#ic-menu"/>
-                            </svg>
-                        </button>
                     </div>
+                </div>
+                <div class="sb-toggle-wrap">
+                    <button type="button" class="sb-toggle-btn" id="sbToggleBtn"
+                            onclick="sidebarToggle()"
+                            aria-label="Toggle sidebar" aria-expanded="true">
+                        <div class="sb-toggle-icon">
+                            <span class="sb-bar sb-bar-t"></span>
+                            <span class="sb-bar sb-bar-m"></span>
+                            <span class="sb-bar sb-bar-b"></span>
+                        </div>
+                        <span class="sb-toggle-label">Menu</span>
+                    </button>
                 </div>
                 <div class="subject-search-wrap">
                     <input
@@ -2479,6 +2683,8 @@
                         </button>
                     </div>
                 </div>
+                <div class="sb-rail" id="sbRail" onclick="sidebarToggle()"
+                     role="button" aria-label="Toggle sidebar" tabindex="-1"></div>
             </nav>
             <main class="workspace">
                 <div class="mobile-header">
@@ -3136,6 +3342,54 @@
                 </button>
             </div>
         </div>
+
+        <!-- Image Lightbox -->
+        <div id="imgLightbox" onclick="closeLightbox()">
+            <div class="lightbox-toolbar" onclick="event.stopPropagation()">
+                <span class="lightbox-filename" id="lightboxFilename"></span>
+                <div class="lightbox-actions">
+                    <a class="lightbox-btn" id="lightboxDownload" href="#" download title="Download">
+                        <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                            <polyline points="7 11 12 16 17 11"/>
+                            <line x1="12" y1="4" x2="12" y2="16"/>
+                        </svg>
+                    </a>
+                    <button type="button" class="lightbox-btn" onclick="closeLightbox()" title="Close">
+                        <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()">
+        </div>
+
+        <!-- PDF / Word File Viewer -->
+        <div id="fileViewerModal" onclick="closeFileViewer()">
+            <div class="fv-shell" onclick="event.stopPropagation()">
+                <div class="fv-header">
+                    <span class="fv-title" id="fvTitle"></span>
+                    <span class="fv-type-badge" id="fvBadge">PDF</span>
+                    <div class="fv-actions">
+                        <a class="btn btn-ghost text-xs" id="fvOpenExternal" href="#" target="_blank" rel="noopener" style="padding:6px 10px; min-height:36px;">
+                            <svg class="icon"><use href="#ic-link"/></svg> Open
+                        </a>
+                        <button type="button" class="btn btn-ghost text-xs" onclick="closeFileViewer()" style="padding:6px 10px; min-height:36px;">
+                            <svg class="icon"><use href="#ic-x"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="fv-body">
+                    <div class="fv-loading" id="fvLoading">
+                        <svg class="icon icon-spin" style="width:28px;height:28px;"><use href="#ic-loader"/></svg>
+                        <span>Loading file...</span>
+                    </div>
+                    <iframe id="fvFrame" src="" title="File Viewer"></iframe>
+                </div>
+            </div>
+        </div>
+
         <div id="toastContainer" class="toast-container"></div>
         <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
         <script>
@@ -3520,13 +3774,59 @@
                 requestAnimationFrame(step);
             }
 
-            function toggleDesktopSidebar() {
-                document.getElementById('sidebar')?.classList.toggle('collapsed');
+            const SB_COOKIE = 'sb_state';
+            const SB_COOKIE_AGE = 60 * 60 * 24 * 7;
+
+            function sbGetState() {
+                try {
+                    const m = document.cookie.match(/(?:^|; )sb_state=([^;]*)/);
+                    return m ? m[1] : 'expanded';
+                } catch(e) { return 'expanded'; }
+            }
+
+            function sbSetState(s) {
+                const el = document.getElementById('sidebar');
+                if (!el) return;
+                el.setAttribute('data-state', s);
+                el.classList.toggle('collapsed', s === 'collapsed');
+                const btn = document.getElementById('sbToggleBtn');
+                if (btn) btn.setAttribute('aria-expanded', s === 'expanded' ? 'true' : 'false');
+                try {
+                    document.cookie = SB_COOKIE + '=' + s + '; path=/; max-age=' + SB_COOKIE_AGE;
+                } catch(e) {}
                 trackPillAnimation();
             }
+
+            function sidebarToggle() {
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('sidebarOverlay');
+                    if (!sidebar) return;
+                    const opening = !sidebar.classList.contains('mobile-open');
+                    sidebar.classList.toggle('mobile-open', opening);
+                    if (overlay) {
+                        overlay.classList.toggle('active', opening);
+                        overlay.style.pointerEvents = opening ? 'auto' : 'none';
+                    }
+                    trackPillAnimation();
+                } else {
+                    const el = document.getElementById('sidebar');
+                    if (!el) return;
+                    sbSetState(el.getAttribute('data-state') === 'expanded' ? 'collapsed' : 'expanded');
+                }
+            }
+
+            function toggleDesktopSidebar() { sidebarToggle(); }
             function toggleMobileSidebar() {
-                document.getElementById('sidebar')?.classList.toggle('mobile-open');
-                document.getElementById('sidebarOverlay')?.classList.toggle('active');
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (!sidebar) return;
+                const opening = !sidebar.classList.contains('mobile-open');
+                sidebar.classList.toggle('mobile-open', opening);
+                if (overlay) {
+                    overlay.classList.toggle('active', opening);
+                    overlay.style.pointerEvents = opening ? 'auto' : 'none';
+                }
                 trackPillAnimation();
             }
 
@@ -4526,7 +4826,7 @@
                         uploadsHtml = '<div class="uploads-list">';
                         asg.uploads.forEach(up => {
                             uploadsHtml += `
-                            <div class="upload-item" onclick="window.open('${up.url}','_blank')">
+                            <div class="upload-item" onclick="openFilePreview('${up.url}','${(up.name||'File').replace(/['"]/g,'_')}')">
                                 <div class="upload-info">
                                     <svg class="icon"><use href="#ic-file-text"/></svg>
                                     <div class="upload-text">
@@ -4560,7 +4860,7 @@
                         ${uploadsHtml}
                         <div class="task-actions">
                             <button type="button" class="btn btn-secondary text-xs" onclick="openUploadModal('${asg.id}')"><svg class="icon"><use href="#ic-upload"/></svg> Upload Answer</button>
-                            ${asg.question_url ? `<a href="${asg.question_url}" target="_blank" rel="noopener" class="btn btn-ghost text-xs"><svg class="icon"><use href="#ic-link"/></svg> Question</a>` : ''}
+                            ${asg.question_url ? `<button type="button" class="btn btn-ghost text-xs" onclick="openFilePreview('${asg.question_url}','Question')"><svg class="icon"><use href="#ic-eye"/></svg> Question</button>` : ''}
                             ${state.isAdmin ? `<button type="button" class="btn btn-ghost text-xs" onclick="openEditAssignmentModal('${asg.id}')"><svg class="icon"><use href="#ic-pencil"/></svg> Edit</button>` : ''}
                         </div>
                     </div>`;
@@ -4580,7 +4880,7 @@
                     </div>
                     ${item.body ? `<div class="resource-body">${item.body}</div>` : ''}
                     <div class="resource-actions">
-                        ${item.ref_url ? `<a href="${item.ref_url}" target="_blank" rel="noopener" class="btn btn-secondary text-xs"><svg class="icon"><use href="#ic-link"/></svg> Open</a>` : ''}
+                        ${item.ref_url ? `<button type="button" class="btn btn-secondary text-xs" onclick="openFilePreview('${item.ref_url}','${(item.title||'File').replace(/['"]/g,'_')}')"><svg class="icon"><use href="#ic-eye"/></svg> View</button>` : ''}
                         ${state.isAdmin ? `<button type="button" class="btn btn-ghost text-xs" onclick="${type === 'syl' ? `openEditSyllabusModal('${item.id}')` : `openEditNoteModal('${item.id}')`}"><svg class="icon"><use href="#ic-pencil"/></svg> Edit</button>` : ''}
                         ${state.isAdmin ? `<button type="button" class="btn btn-danger text-xs" onclick="${type === 'syl' ? `deleteSyllabus('${item.id}')` : `deleteNote('${item.id}')`}"><svg class="icon"><use href="#ic-trash"/></svg></button>` : ''}
                     </div>`;
@@ -5190,7 +5490,11 @@
 
             
             document.addEventListener('keydown', function(e) {
-                
+                if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    if (!document.querySelector('.modal-overlay.active')) sidebarToggle();
+                    return;
+                }
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.modal-overlay.active').forEach(m => {
                         m.classList.remove('active');
@@ -5238,6 +5542,11 @@
                 initThemes();
                 populateSubjectDropdown();
                 updateOnlineStatus();
+
+                sbSetState(sbGetState());
+
+                const _ov = document.getElementById('sidebarOverlay');
+                if (_ov) _ov.style.pointerEvents = 'none';
 
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -5370,6 +5679,83 @@
                     }
                 }, { passive: true });
             })();
+
+
+            // ════ File Preview System ════
+            function getFileType(url, name) {
+                const src = (name || url || '').toLowerCase();
+                const path = url ? url.split('?')[0].toLowerCase() : '';
+                if (/\.(png|jpe?g|gif|webp|svg|bmp)(\?|$)/.test(src) || /\.(png|jpe?g|gif|webp|svg|bmp)$/.test(path)) return 'image';
+                if (/\.(pdf)(\?|$)/.test(src) || /\.pdf$/.test(path)) return 'pdf';
+                if (/\.(docx?)(\?|$)/.test(src) || /\.docx?$/.test(path)) return 'word';
+                return 'other';
+            }
+
+            function openFilePreview(url, name) {
+                if (!url) return;
+                const type = getFileType(url, name);
+                if (type === 'image') openLightbox(url, name);
+                else openFileViewer(url, name, type === 'word' ? 'word' : 'pdf');
+            }
+
+            function openLightbox(url, name) {
+                const lb = document.getElementById('imgLightbox');
+                const img = document.getElementById('lightboxImg');
+                const dl  = document.getElementById('lightboxDownload');
+                if (!lb || !img) return;
+                img.src = url;
+                dl.href = url;
+                dl.setAttribute('download', name || 'image');
+                document.getElementById('lightboxFilename').textContent = name || 'Image';
+                lb.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                document.getElementById('imgLightbox')?.classList.remove('active');
+                document.body.style.overflow = '';
+                setTimeout(() => { const i = document.getElementById('lightboxImg'); if(i) i.src = ''; }, 300);
+            }
+
+            function openFileViewer(url, name, type) {
+                const modal = document.getElementById('fileViewerModal');
+                const frame = document.getElementById('fvFrame');
+                if (!modal || !frame) return;
+                document.getElementById('fvTitle').textContent = name || 'File';
+                document.getElementById('fvOpenExternal').href = url;
+                document.getElementById('fvBadge').textContent = type === 'word' ? 'DOCX' : 'PDF';
+                const loading = document.getElementById('fvLoading');
+                if (loading) loading.style.display = 'flex';
+                frame.src = '';
+                // Use addEventListener — NOT onload attr — to avoid ReferenceError timing bug
+                const onLoad = () => {
+                    if (loading) loading.style.display = 'none';
+                    frame.removeEventListener('load', onLoad);
+                };
+                frame.addEventListener('load', onLoad);
+                frame.src = type === 'word'
+                    ? 'https://docs.google.com/viewer?url=' + encodeURIComponent(url) + '&embedded=true'
+                    : 'https://mozilla.github.io/pdf.js/web/viewer.html?file=' + encodeURIComponent(url);
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeFileViewer() {
+                document.getElementById('fileViewerModal')?.classList.remove('active');
+                document.body.style.overflow = '';
+                setTimeout(() => { const f = document.getElementById('fvFrame'); if(f) f.src = ''; }, 300);
+            }
+
+            // Escape closes preview overlays (capture phase — before existing handler)
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Escape') return;
+                if (document.getElementById('imgLightbox')?.classList.contains('active')) {
+                    closeLightbox(); e.stopPropagation(); return;
+                }
+                if (document.getElementById('fileViewerModal')?.classList.contains('active')) {
+                    closeFileViewer(); e.stopPropagation(); return;
+                }
+            }, true);
 
             document.addEventListener('DOMContentLoaded', init);
         </script>
