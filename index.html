@@ -1499,7 +1499,7 @@
                 pointer-events: auto;
             }
 
-            .cp-container {
+                       .cp-container {
                 display: flex;
                 gap: 32px;
                 margin-top: 32px;
@@ -1525,6 +1525,7 @@
                 justify-content: center;
                 align-items: flex-start;
             }
+
 
             /* A4 preview — EB Garamond, clean border design */
             .cp-a4 {
@@ -3517,73 +3518,19 @@
                 console.error('Supabase init error:', e);
             }
 
-            const SUBJECTS = [
-                {
-                    id: 'sub_1',
-                    name: 'Engineering Mathematics\u2013II',
-                    teacher: 'Prof. Deepa Mandal'
-                },
-                {
-                    id: 'sub_2',
-                    name: 'Engineering Chemistry',
-                    teacher: 'Dr. ChandraPrabha Sahu'
-                },
-                {
-                    id: 'sub_3',
-                    name: 'Programming with Python',
-                    teacher: 'IBM SUBJECT EXPERT'
-                },
-                {
-                    id: 'sub_4',
-                    name: 'English for Skill Enhancement',
-                    teacher: 'Dr. Monika Singh'
-                },
-                {
-                    id: 'sub_5',
-                    name: 'Universal Human Values',
-                    teacher: 'Dr Binod Kumar Choudhary'
-                },
-                {
-                    id: 'sub_6',
-                    name: 'Manufacturing Practice',
-                    teacher: 'Dr. Shailendra kr Prashad'
-                },
-                {
-                    id: 'sub_7',
-                    name: 'Constitution Of India',
-                    teacher: 'Dr. Prem Nath Suman'
-                },
-                {
-                    id: 'sub_8',
-                    name: 'Engineering Chemistry Lab',
-                    teacher: 'Mr. Abhijit Mandal',
-                    isLab: true
-                },
-                {
-                    id: 'sub_9',
-                    name: 'Programming with Python Lab',
-                    teacher: 'IBM SUBJECT EXPERT',
-                    isLab: true
-                },
-                {
-                    id: 'sub_10',
-                    name: 'Design Thinking & Idea Lab',
-                    teacher: 'Mr. Santosh Kumar Sah',
-                    isLab: true
-                },
-                {
-                    id: 'sub_11',
-                    name: 'Engineering Workshop',
-                    teacher: 'Mr. Jai Narayan',
-                    isLab: true
-                },
-                {
-                    id: 'sub_12',
-                    name: 'English Language & Comm. Lab',
-                    teacher: 'Dr. Monika Singh',
-                    isLab: true
-                }
+                        const SUBJECTS = [
+                { id: 'sub_1', name: 'Engineering Mathematics–III', teacher: 'Prof. Mukesh Kumar Sinha' },
+                { id: 'sub_2', name: 'Data Structures', teacher: 'Prof. Sayantani De' },
+                { id: 'sub_3', name: 'Digital Electronics', teacher: 'Dr. Nidhi Dua' },
+                { id: 'sub_4', name: 'Computer Organization and Architecture', teacher: 'Avinash Jena Samantha' },
+                { id: 'sub_5', name: 'Programming with Java', teacher: 'Prof. Syed Rashid Anwar' },
+                { id: 'sub_6', name: 'Cloud Fundamentals', teacher: 'IBM Faculty' },
+                { id: 'sub_7', name: 'Gender Sensitization', teacher: 'Dr. Monika Singh' },
+                { id: 'sub_8', name: 'Data Structures Laboratory', teacher: 'Prof. Sayantani De / Neelam Kumari', isLab: true },
+                { id: 'sub_9', name: 'Digital Electronics Laboratory', teacher: 'Dr. Nidhi Dua / Bilquees Bano', isLab: true },
+                { id: 'sub_10', name: 'Programming with Java Laboratory', teacher: 'Prof. Syed Rashid Anwar / Dileep Kumar', isLab: true }
             ];
+
 
             const state = {
                 user: null,
