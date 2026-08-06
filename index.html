@@ -233,7 +233,6 @@
             display: none !important;
         }
 
-
         #welcomeView:not(.hidden) {
             display: flex;
             flex-direction: column;
@@ -241,15 +240,64 @@
         }
 
         #subjectView:not(.hidden),
-        #noticesView:not(.hidden) {
+        #noticesView:not(.hidden),
+        #coverPageView:not(.hidden) {
             display: block;
         }
 
-        #coverPageView:not(.hidden) {
+        /* ── Cover Page Custom Layout ── */
+        .cp-layout {
             display: flex;
-            flex-direction: column;
+            gap: 24px;
+            align-items: flex-start;
+            margin-top: 16px;
+        }
+        .cp-form-panel {
+            width: 380px;
+            flex-shrink: 0;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            height: calc(100vh - 240px);
+            overflow-y: auto;
+        }
+        .cp-preview-panel {
             flex: 1;
+            background: var(--panel-bg-alt);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            height: calc(100vh - 240px);
+            position: relative;
             overflow: hidden;
+        }
+        .cp-canvas-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 24px;
+            text-align: center;
+        }
+        .cp-zoom-controls {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+            background: var(--panel-bg);
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 860px) {
+            .cp-layout { flex-direction: column; }
+            .cp-form-panel, .cp-preview-panel { 
+                width: 100%; 
+                height: auto; 
+                max-height: 60vh; 
+            }
         }
 
         .mono {
@@ -3077,6 +3125,39 @@
                         <div id="notesList" class="resources-list"></div>
                     </div>
                 </div>
+
+                <div id="coverPageView" class="hidden">
+                    <div class="workspace-header">
+                        <h1>Assignment Cover Page</h1>
+                        <div class="subject-meta"><span>Fill in the details to generate your cover page</span></div>
+                    </div>
+                    <div class="cp-layout">
+                        <div class="cp-form-panel">
+                            <div id="cp-form-container"></div>
+                            <button class="btn btn-primary" style="width: 100%; margin-top: 24px; justify-content: center;" onclick="downloadCpCanvas()">
+                                <svg class="icon"><use href="#ic-download"/></svg> Download Image
+                            </button>
+                        </div>
+
+                        <div class="cp-preview-panel">
+                            <div class="cp-zoom-controls">
+                                <button class="btn btn-secondary btn-icon text-xs" style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(-10)" title="Zoom Out">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                </button>
+                                <button class="btn btn-secondary btn-icon text-xs" style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(10)" title="Zoom In">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                </button>
+                            </div>
+                            
+                            <div id="cp-status" style="color: var(--text-muted); font-size: 0.85rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;">Loading common.png...</div>
+                            
+                            <div class="cp-canvas-wrapper">
+                                <canvas id="cp-canvas" style="display: none; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); width: 100%; max-width: 800px; height: auto; transition: width 0.2s ease, max-width 0.2s ease;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="noticesView" class="hidden">
                     <div class="workspace-header"
                         style="display:flex; justify-content:space-between; align-items:flex-end;">
@@ -4229,7 +4310,6 @@
             const container = document.getElementById('homeCountdownContainer');
             if (!container) return;
 
-            // Find the most urgent pending assignment with a future due date
             const now = new Date();
             const upcoming = state.assignments
                 .filter(a => !isCompletedByUser(a.id) && a.due_date && new Date(a.due_date) > now)
@@ -4290,7 +4370,7 @@
                 if (diff <= 0) {
                     clearInterval(window.homeCountdownInterval);
                     container.innerHTML = '';
-                    renderHomeView(); // Re-render to pick up changes
+                    renderHomeView();
                     return;
                 }
 
@@ -4313,7 +4393,8 @@
             const viewMap = {
                 home: 'welcomeView',
                 subject: 'subjectView',
-                notices: 'noticesView'
+                notices: 'noticesView',
+                cover_page: 'coverPageView'
             };
 
             const currentEl = document.getElementById(viewMap[state.currentView]);
@@ -4330,13 +4411,12 @@
                         el.classList.add('hidden');
                         el.classList.remove('view-entering', 'view-exiting');
                     }
-                }
-                );
+                });
                 nextEl.classList.remove('hidden');
                 nextEl.classList.add('view-entering');
-                nextEl.addEventListener('animationend', () => nextEl.classList.remove('view-entering'), {
-                    once: true
-                });
+                nextEl.addEventListener('animationend', (e) => {
+                    if (e.target === nextEl) nextEl.classList.remove('view-entering');
+                }, { once: true });
 
                 pushViewState(view);
                 if (view === 'home')
@@ -4353,16 +4433,25 @@
                     top: 0,
                     behavior: 'smooth'
                 });
-            }
-                ;
+            };
 
             if (!currentEl || currentEl === nextEl || currentEl.classList.contains('hidden')) {
                 doSwitch();
             } else {
                 currentEl.classList.add('view-exiting');
-                currentEl.addEventListener('animationend', doSwitch, {
-                    once: true
-                });
+                
+                const onEnd = (e) => {
+                    if (e.target !== currentEl) return;
+                    currentEl.removeEventListener('animationend', onEnd);
+                    doSwitch();
+                };
+                currentEl.addEventListener('animationend', onEnd);
+
+                setTimeout(() => {
+                    if (!nextEl.classList.contains('hidden') && !nextEl.classList.contains('view-entering')) return;
+                    currentEl.removeEventListener('animationend', onEnd);
+                    doSwitch();
+                }, 150);
             }
         }
 
@@ -4451,9 +4540,9 @@
                 return el;
             };
 
-
             if (!query) {
                 list.appendChild(createItem('home', '<svg class="icon"><use href="#ic-home"/></svg>', 'Home', true, () => switchView('home')));
+                list.appendChild(createItem('cover_page', '<svg class="icon"><use href="#ic-file-text"/></svg>', 'Cover Page', true, () => switchView('cover_page')));
                 list.appendChild(createItem('notices', 'GN', 'General Notices', true, () => {
                     switchView('notices');
                     loadNotices();
@@ -4510,7 +4599,6 @@
         function filterSidebarSubjects(query) {
             renderSidebarList(query);
         }
-
 
         function switchSubjectTab(tab) {
             state.activeSubjectTab = tab;
@@ -4906,18 +4994,6 @@
             document.getElementById('subjectTitle').textContent = sub.name;
             document.getElementById('subjectTeacher').textContent = sub.teacher;
 
-            const cpSubjEl = document.getElementById('cp-input-subj');
-            const cpTeacherEl = document.getElementById('cp-input-teacher');
-            if (cpSubjEl) {
-                cpSubjEl.value = sub.name;
-                updateCP('cp-val-subj', sub.name);
-            }
-            if (cpTeacherEl) {
-                cpTeacherEl.value = sub.teacher;
-                updateCP('cp-val-submit', sub.teacher);
-            }
-
-
             state.activeSubjectTab = 'assignments';
             switchSubjectTab('assignments');
 
@@ -4931,6 +5007,17 @@
             updateTabCounts();
             updateProgress();
             renderSidebarList();
+
+            const cpSubjInput = document.getElementById('cp_subject');
+            if (cpSubjInput) {
+                cpSubjInput.value = sub.name;
+                updateCpData('subject', sub.name);
+            }
+            const cpTeacherInput = document.getElementById('cp_submittedTo');
+            if (cpTeacherInput) {
+                cpTeacherInput.value = sub.teacher;
+                updateCpData('submittedTo', sub.teacher);
+            }
         }
 
         function updateTabCounts() {
@@ -5422,44 +5509,6 @@
             }
         }
 
-        function updateCP(id, val) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = val;
-        }
-
-        async function downloadCoverPage() {
-            const el = document.getElementById('coverPagePreview');
-            if (!el) return;
-            if (!window.html2canvas) {
-                const s = document.createElement('script');
-                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                document.head.appendChild(s);
-                await new Promise((res, rej) => { s.onload = res; s.onerror = rej; });
-            }
-            try { await document.fonts.ready; } catch (e) { }
-            showToast('Generating PNG...');
-            try {
-                const canvas = await html2canvas(el, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#fff',
-                    logging: false,
-                    onclone: (doc) => {
-                        const p = doc.getElementById('coverPagePreview');
-                        if (p) { p.style.zoom = '1'; p.style.transform = 'none'; }
-                    }
-                });
-                const link = document.createElement('a');
-                link.download = 'CoverPage_AJU.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showToast('Cover page downloaded!');
-            } catch (e) {
-                showToast('Failed to generate PNG', 'error');
-            }
-        }
-
         function openAddSyllabusModal() {
             document.getElementById('sylModalTitle').textContent = 'Add Syllabus';
             document.getElementById('sylId').value = '';
@@ -5541,6 +5590,7 @@
             document.getElementById('noteFile').value = '';
             openModal('noteModal');
         }
+
         function openEditNoteModal(id) {
             const item = state.notes.find(n => n.id === id);
             if (!item)
@@ -5553,6 +5603,7 @@
             document.getElementById('noteFile').value = '';
             openModal('noteModal');
         }
+
         async function saveNote() {
             const title = document.getElementById('noteTitle').value.trim();
             const body = document.getElementById('noteBody').value.trim();
@@ -5717,7 +5768,6 @@
                 btn.style.display = 'none';
         }
 
-
         function updateFileLabel(inputId, labelId) {
             const input = document.getElementById(inputId);
             const label = document.getElementById(labelId);
@@ -5726,8 +5776,6 @@
             const file = input.files[0];
             label.textContent = file ? file.name : 'No file chosen';
         }
-
-
 
         function populateSubjectDropdown() {
             const sel = document.getElementById('asgSubject');
@@ -5749,7 +5797,6 @@
             sel.appendChild(grpLab);
         }
 
-
         document.addEventListener('keydown', function (e) {
             if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
@@ -5765,10 +5812,8 @@
                 return;
             }
 
-
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')
                 return;
-
 
             if (e.key === 'h' || e.key === 'H') {
                 switchView('home');
@@ -5789,7 +5834,6 @@
             }
         });
 
-
         function buildHomeStats() {
             const allIds = new Set(SUBJECTS.map(s => s.id));
             const allAsgs = state.assignments.filter(a => allIds.has(a.subject_id));
@@ -5799,12 +5843,117 @@
             return { total: allAsgs.length, pending, done, overdue, subjects: SUBJECTS.length };
         }
 
+        const cpFields = [
+            { id: 'assignmentNo', label: 'Assignment No', x: 0.597, y: 0.296 },
+            { id: 'name', label: 'Name', x: 0.195, y: 0.3695 },
+            { id: 'enrollmentNo', label: 'Enrollment No', x: 0.292, y: 0.404 },
+            { id: 'rollNo', label: 'Roll No', x: 0.215, y: 0.437 },
+            { id: 'program', label: 'Program', x: 0.225, y: 0.469 },
+            { id: 'branch', label: 'Branch', x: 0.212, y: 0.503 },
+            { id: 'semester', label: 'Semester', x: 0.23, y: 0.535 },
+            { id: 'section', label: 'Section', x: 0.213, y: 0.570 },
+            { id: 'subject', label: 'Subject/Course', x: 0.302, y: 0.602 },
+            { id: 'batch', label: 'Batch', x: 0.195, y: 0.635 },
+            { id: 'submittedTo', label: 'Submitted to', x: 0.275, y: 0.668 },
+            { id: 'date', label: 'Date', x: 0.182, y: 0.860 },
+            { id: 'place', label: 'Place', x: 0.19, y: 0.8935 }
+        ];
+
+        let cpCanvas, cpCtx, cpStatusEl, cpBaseImage;
+        const cpFormData = {};
+        const CP_BASE_FONT_SIZE = 20;
+        const CP_TEXT_COLOR = '#1d1d1f';
+        const CP_FONT_FAMILY = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+        let cpZoomLevel = 100;
+
+        function initCpForm() {
+            const container = document.getElementById('cp-form-container');
+            if (!container) return;
+            let html = '';
+            cpFields.forEach(f => {
+                cpFormData[f.id] = '';
+                html += `
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label for="cp_${f.id}" class="form-label">${f.label}</label>
+                        <input type="text" id="cp_${f.id}" class="input" placeholder="Enter ${f.label.toLowerCase()}" oninput="updateCpData('${f.id}', this.value)">
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.updateCpData = function(id, value) {
+            cpFormData[id] = value;
+            drawCpCanvas();
+        };
+
+        function drawCpCanvas() {
+            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
+            cpCtx.clearRect(0, 0, cpCanvas.width, cpCanvas.height);
+            cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
+            const scale = cpCanvas.width / 800; 
+            const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
+            cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
+            cpCtx.fillStyle = CP_TEXT_COLOR;
+            cpCtx.textBaseline = 'bottom';
+            
+            cpFields.forEach(f => {
+                const text = cpFormData[f.id];
+                if (text && text.trim() !== '') {
+                    const absX = cpCanvas.width * f.x;
+                    const absY = cpCanvas.height * f.y;
+                    cpCtx.fillText(text, absX, absY);
+                }
+            });
+        }
+
+        function bootCp() {
+            cpCanvas = document.getElementById('cp-canvas');
+            if (!cpCanvas) return;
+            cpCtx = cpCanvas.getContext('2d');
+            cpStatusEl = document.getElementById('cp-status');
+            cpBaseImage = new Image();
+            initCpForm();
+            
+            cpBaseImage.src = 'common.png';
+            cpBaseImage.onload = () => {
+                cpStatusEl.style.display = 'none';
+                cpCanvas.style.display = 'inline-block';
+                cpCanvas.width = cpBaseImage.naturalWidth;
+                cpCanvas.height = cpBaseImage.naturalHeight;
+                drawCpCanvas();
+            };
+            cpBaseImage.onerror = () => {
+                cpStatusEl.innerHTML = `<span style="color: var(--danger); font-weight: 600;">Error:</span> Could not load 'common.png'.<br>Ensure the image is in the same folder.`;
+            };
+        }
+
+        window.downloadCpCanvas = function() {
+            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
+            const link = document.createElement('a');
+            const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
+            link.download = `CoverPage_${name}.png`;
+            link.href = cpCanvas.toDataURL('image/png');
+            link.click();
+            showToast('Cover page downloaded successfully!');
+        };
+
+        window.zoomCp = function(delta) {
+            cpZoomLevel = Math.max(30, Math.min(300, cpZoomLevel + delta));
+            if (cpCanvas) {
+                cpCanvas.style.width = `${cpZoomLevel}%`;
+                cpCanvas.style.maxWidth = 'none'; 
+            }
+        };
+
         async function init() {
             initThemes();
             populateSubjectDropdown();
             updateOnlineStatus();
 
             sbSetState(sbGetState());
+
+            bootCp();
 
             const _ov = document.getElementById('sidebarOverlay');
             if (_ov) _ov.style.pointerEvents = 'none';
@@ -5837,13 +5986,10 @@
                     updateProgress();
                 }
             } catch (e) {
-
                 if (state.currentView === 'home')
                     await renderHomeView().catch(() => { });
             }
         }
-
-
 
         const _canUseHistory = (() => {
             try {
@@ -5883,7 +6029,6 @@
             });
         }
 
-
         function updateOnlineStatus() {
             const banner = document.getElementById('offlineBanner');
             if (!banner) return;
@@ -5895,7 +6040,6 @@
         }
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-
 
         (function () {
             const workspace = document.querySelector('.workspace');
@@ -5929,7 +6073,6 @@
                 pulling = false;
                 if (indicator) {
                     try {
-
                         state.assignments = await apiFetch('/assignments?select=*') || [];
                         renderSidebarList();
                         if (state.currentView === 'home') renderHomeView();
@@ -5940,7 +6083,6 @@
                 }
             }, { passive: true });
         })();
-
 
         // ════ File Preview System ════
         function getFileType(url, name) {
@@ -5988,7 +6130,6 @@
             const loading = document.getElementById('fvLoading');
             if (loading) loading.style.display = 'flex';
             frame.src = '';
-            // Use addEventListener — NOT onload attr — to avoid ReferenceError timing bug
             const onLoad = () => {
                 if (loading) loading.style.display = 'none';
                 frame.removeEventListener('load', onLoad);
@@ -6007,7 +6148,6 @@
             setTimeout(() => { const f = document.getElementById('fvFrame'); if (f) f.src = ''; }, 300);
         }
 
-        // Escape closes preview overlays (capture phase — before existing handler)
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape') return;
             if (document.getElementById('imgLightbox')?.classList.contains('active')) {
@@ -6021,5 +6161,4 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-
 </html>
