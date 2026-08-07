@@ -76,6 +76,7 @@
         rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -3134,9 +3135,14 @@
                     <div class="cp-layout">
                         <div class="cp-form-panel">
                             <div id="cp-form-container"></div>
-                            <button class="btn btn-primary" style="width: 100%; margin-top: 24px; justify-content: center;" onclick="downloadCpCanvas()">
-                                <svg class="icon"><use href="#ic-download"/></svg> Download Image
-                            </button>
+                            <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" style="flex: 1; min-width: 140px; justify-content: center;" onclick="downloadCpCanvas()">
+                                    <svg class="icon"><use href="#ic-download"/></svg> Download PNG
+                                </button>
+                                <button class="btn btn-secondary" style="flex: 1; min-width: 140px; justify-content: center;" onclick="downloadCpPdf()">
+                                    <svg class="icon"><use href="#ic-download"/></svg> Download PDF
+                                </button>
+                            </div>
                         </div>
 
                         <div class="cp-preview-panel">
@@ -5935,7 +5941,31 @@
             link.download = `CoverPage_${name}.png`;
             link.href = cpCanvas.toDataURL('image/png');
             link.click();
-            showToast('Cover page downloaded successfully!');
+            showToast('Cover page PNG downloaded successfully!');
+        };
+
+        window.downloadCpPdf = function() {
+            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0 || !cpCanvas) return;
+
+            try {
+                const { jsPDF } = window.jspdf || {};
+                if (!jsPDF) throw new Error('PDF library is unavailable.');
+
+                const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
+                const imgData = cpCanvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [cpCanvas.width, cpCanvas.height]
+                });
+
+                pdf.addImage(imgData, 'PNG', 0, 0, cpCanvas.width, cpCanvas.height);
+                pdf.save(`CoverPage_${name}.pdf`);
+                showToast('Cover page PDF downloaded successfully!');
+            } catch (error) {
+                console.error('Cover page PDF export failed:', error);
+                showToast('Unable to download PDF right now.');
+            }
         };
 
         window.zoomCp = function(delta) {
