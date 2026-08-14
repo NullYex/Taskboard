@@ -253,6 +253,7 @@
             align-items: flex-start;
             margin-top: 16px;
         }
+
         .cp-form-panel {
             width: 380px;
             flex-shrink: 0;
@@ -263,6 +264,7 @@
             height: calc(100vh - 240px);
             overflow-y: auto;
         }
+
         .cp-preview-panel {
             flex: 1;
             background: var(--panel-bg-alt);
@@ -272,6 +274,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .cp-canvas-wrapper {
             width: 100%;
             height: 100%;
@@ -279,6 +282,7 @@
             padding: 24px;
             text-align: center;
         }
+
         .cp-zoom-controls {
             position: absolute;
             bottom: 24px;
@@ -290,14 +294,19 @@
             padding: 6px;
             border-radius: 8px;
             border: 1px solid var(--border);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
+
         @media (max-width: 860px) {
-            .cp-layout { flex-direction: column; }
-            .cp-form-panel, .cp-preview-panel { 
-                width: 100%; 
-                height: auto; 
-                max-height: 60vh; 
+            .cp-layout {
+                flex-direction: column;
+            }
+
+            .cp-form-panel,
+            .cp-preview-panel {
+                width: 100%;
+                height: auto;
+                max-height: 60vh;
             }
         }
 
@@ -2590,7 +2599,7 @@
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        
+
         .countdown-banner::before {
             content: '';
             position: absolute;
@@ -2604,9 +2613,17 @@
         }
 
         @keyframes rotatePulse {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.1); }
-            100% { transform: rotate(360deg) scale(1); }
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.1);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
         }
 
         .countdown-header {
@@ -2635,7 +2652,7 @@
             font-family: var(--font-mono);
             z-index: 1;
         }
-        
+
         .countdown-timer-container {
             display: flex;
             gap: 16px;
@@ -2685,14 +2702,45 @@
             align-items: center;
             gap: 6px;
         }
-        
+
         @media (max-width: 600px) {
-            .countdown-timer-container { gap: 8px; }
-            .countdown-box { min-width: 50px; padding: 10px; }
-            .countdown-value { font-size: 1.5rem; }
-            .countdown-due-date { position: static; margin-bottom: 12px; }
-            .countdown-banner { padding: 20px; }
+            .countdown-timer-container {
+                gap: 8px;
+            }
+
+            .countdown-box {
+                min-width: 50px;
+                padding: 10px;
+            }
+
+            .countdown-value {
+                font-size: 1.5rem;
+            }
+
+            .countdown-due-date {
+                position: static;
+                margin-bottom: 12px;
+            }
+
+            .countdown-banner {
+                padding: 20px;
+            }
         }
+        /* Custom Calendar */
+        .custom-calendar-wrapper { position: relative; }
+        .custom-calendar { position: absolute; top: 100%; left: 0; margin-top: 8px; width: 300px; background: color-mix(in srgb, var(--bg-card) 70%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4); z-index: 100; padding: 16px; display: none; user-select: none; }
+        .custom-calendar.active { display: block; animation: fadeIn 0.2s ease; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .calendar-title { font-weight: 600; font-size: 1rem; }
+        .calendar-nav { background: none; border: 1px solid var(--border); color: var(--text); cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .calendar-nav:hover { background: var(--bg-hover); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .calendar-day-name { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; color: var(--text); }
+        .calendar-day:hover:not(.empty) { background: var(--bg-hover); }
+        .calendar-day.empty { cursor: default; }
+        .calendar-day.selected { background: var(--primary) !important; color: white; font-weight: 600; }
+        .calendar-day.today { border: 1px solid var(--primary); }
     </style>
 </head>
 
@@ -3128,37 +3176,83 @@
                 </div>
 
                 <div id="coverPageView" class="hidden">
-                    <div class="workspace-header">
-                        <h1>Assignment Cover Page</h1>
-                        <div class="subject-meta"><span>Fill in the details to generate your cover page</span></div>
+                    <div class="workspace-header"
+                        style="display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div>
+                            <h1>Assignment Cover Page</h1>
+                            <div class="subject-meta"><span>Fill in the details to generate your cover page</span></div>
+                        </div>
+                        <button type="button" id="cpEditBtn" class="btn btn-secondary hidden" onclick="toggleCpEdit()">
+                            <svg class="icon">
+                                <use href="#ic-pencil" />
+                            </svg>
+                            Edit Details
+                        </button>
                     </div>
                     <div class="cp-layout">
                         <div class="cp-form-panel">
                             <div id="cp-form-container"></div>
                             <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                                <button class="btn btn-primary" style="flex: 1; min-width: 140px; justify-content: center;" onclick="downloadCpCanvas()">
-                                    <svg class="icon"><use href="#ic-download"/></svg> Download PNG
+                                <button class="btn btn-primary"
+                                    style="flex: 1; min-width: 140px; justify-content: center;"
+                                    onclick="downloadCpCanvas()">
+                                    <svg class="icon">
+                                        <use href="#ic-download" />
+                                    </svg> Download PNG
                                 </button>
-                                <button class="btn btn-secondary" style="flex: 1; min-width: 140px; justify-content: center;" onclick="downloadCpPdf()">
-                                    <svg class="icon"><use href="#ic-download"/></svg> Download PDF
+                                <button class="btn btn-secondary"
+                                    style="flex: 1; min-width: 140px; justify-content: center;"
+                                    onclick="downloadCpPdf()">
+                                    <svg class="icon">
+                                        <use href="#ic-download" />
+                                    </svg> Download PDF
+                                </button>
+                            </div>
+                            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+                                <div class="form-label" style="margin-bottom: 8px;">Bulk Generation</div>
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                                    <input type="number" id="cpBulkCount" class="input" value="5" min="1" max="20"
+                                        style="width: 80px;" placeholder="Count">
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">Assignments per
+                                        Subject</span>
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%; justify-content: center;"
+                                    onclick="downloadCpBulkPdf()">
+                                    <svg class="icon">
+                                        <use href="#ic-download" />
+                                    </svg> Bulk Download PDF
                                 </button>
                             </div>
                         </div>
 
                         <div class="cp-preview-panel">
                             <div class="cp-zoom-controls">
-                                <button class="btn btn-secondary btn-icon text-xs" style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(-10)" title="Zoom Out">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <button class="btn btn-secondary btn-icon text-xs"
+                                    style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(-10)"
+                                    title="Zoom Out">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                                        stroke-width="2" fill="none" stroke-linecap="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
                                 </button>
-                                <button class="btn btn-secondary btn-icon text-xs" style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(10)" title="Zoom In">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <button class="btn btn-secondary btn-icon text-xs"
+                                    style="min-height: 32px; width: 32px; padding: 0;" onclick="zoomCp(10)"
+                                    title="Zoom In">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                                        stroke-width="2" fill="none" stroke-linecap="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
                                 </button>
                             </div>
-                            
-                            <div id="cp-status" style="color: var(--text-muted); font-size: 0.85rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;">Loading common.png...</div>
-                            
+
+                            <div id="cp-status"
+                                style="color: var(--text-muted); font-size: 0.85rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;">
+                                Loading common.png...</div>
+
                             <div class="cp-canvas-wrapper">
-                                <canvas id="cp-canvas" style="display: none; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); width: 100%; max-width: 800px; height: auto; transition: width 0.2s ease, max-width 0.2s ease;"></canvas>
+                                <canvas id="cp-canvas"
+                                    style="display: none; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); width: 100%; max-width: 800px; height: auto; transition: width 0.2s ease, max-width 0.2s ease;"></canvas>
                             </div>
                         </div>
                     </div>
@@ -3886,6 +3980,22 @@
             renderAdminControls();
             if (state.isAdmin)
                 fetchUnreadCount();
+
+            if (state.user?.email) {
+                supabaseClient.from('students').select('*').eq('email', state.user.email).single().then(({ data, error }) => {
+                    if (data && !error) {
+                        window.cpStudentData = data;
+                        if (typeof window.applyCpStudentData === 'function') {
+                            window.applyCpStudentData();
+                        }
+                    }
+                });
+            } else {
+                window.cpStudentData = null;
+                if (typeof window.applyCpStudentData === 'function') {
+                    window.applyCpStudentData();
+                }
+            }
         }
         async function signInWithGoogle() {
             if (!supabaseClient) {
@@ -4301,7 +4411,7 @@
                     );
                 }
             } catch (e) {
-                    recentEl.innerHTML = `<div class="empty-state"><p>No resources added yet.</p></div>`;
+                recentEl.innerHTML = `<div class="empty-state"><p>No resources added yet.</p></div>`;
             }
 
             setupHomeCountdown();
@@ -4385,10 +4495,10 @@
                 const m = Math.floor((diff / 1000 / 60) % 60);
                 const s = Math.floor((diff / 1000) % 60);
 
-                if(elDays) elDays.textContent = d.toString().padStart(2, '0');
-                if(elHours) elHours.textContent = h.toString().padStart(2, '0');
-                if(elMins) elMins.textContent = m.toString().padStart(2, '0');
-                if(elSecs) elSecs.textContent = s.toString().padStart(2, '0');
+                if (elDays) elDays.textContent = d.toString().padStart(2, '0');
+                if (elHours) elHours.textContent = h.toString().padStart(2, '0');
+                if (elMins) elMins.textContent = m.toString().padStart(2, '0');
+                if (elSecs) elSecs.textContent = s.toString().padStart(2, '0');
             }
 
             updateTimer();
@@ -4445,7 +4555,7 @@
                 doSwitch();
             } else {
                 currentEl.classList.add('view-exiting');
-                
+
                 const onEnd = (e) => {
                     if (e.target !== currentEl) return;
                     currentEl.removeEventListener('animationend', onEnd);
@@ -5866,29 +5976,209 @@
         ];
 
         let cpCanvas, cpCtx, cpStatusEl, cpBaseImage;
-        const cpFormData = {};
+        const cpFormData = {
+            program: 'B.Tech in AI & DS(IBM)',
+            batch: '2025 - 29',
+            semester: '3rd',
+            section: 'C',
+            place: 'Jamshedpur',
+            name: '', rollNo: '', enrollmentNo: '', assignmentNo: '', branch: '', subject: '', submittedTo: '', date: ''
+        };
         const CP_BASE_FONT_SIZE = 20;
         const CP_TEXT_COLOR = '#1d1d1f';
         const CP_FONT_FAMILY = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
         let cpZoomLevel = 100;
+        let isCpEditing = false;
 
         function initCpForm() {
             const container = document.getElementById('cp-form-container');
             if (!container) return;
             let html = '';
+
+            const uniqueTeachers = [...new Set(SUBJECTS.map(s => s.teacher))];
+
             cpFields.forEach(f => {
-                cpFormData[f.id] = '';
-                html += `
-                    <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="cp_${f.id}" class="form-label">${f.label}</label>
-                        <input type="text" id="cp_${f.id}" class="input" placeholder="Enter ${f.label.toLowerCase()}" oninput="updateCpData('${f.id}', this.value)">
-                    </div>
-                `;
+                const disabledAttr = (!isCpEditing && window.cpStudentData) ? 'disabled' : '';
+
+                if (f.id === 'subject') {
+                    html += `
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label for="cp_${f.id}" class="form-label">${f.label}</label>
+                            <select id="cp_${f.id}" class="input" onchange="onCpSubjectChange(this.value)" ${disabledAttr}>
+                                <option value="">Select Subject</option>
+                                ${SUBJECTS.map(s => `<option value="${s.name}" ${cpFormData.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else if (f.id === 'submittedTo') {
+                    html += `
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label for="cp_${f.id}" class="form-label">${f.label}</label>
+                            <select id="cp_${f.id}" class="input" onchange="updateCpData('${f.id}', this.value)" ${disabledAttr}>
+                                <option value="">Select Teacher</option>
+                                ${uniqueTeachers.map(t => `<option value="${t}" ${cpFormData.submittedTo === t ? 'selected' : ''}>${t}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else if (f.id === 'date') {
+                    let disp = 'Select Date';
+                    if (cpFormData[f.id]) {
+                        const pts = cpFormData[f.id].split('-');
+                        if (pts.length === 3) disp = `${pts[2]}/${pts[1]}/${pts[0]}`;
+                    }
+                    html += `
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label class="form-label">${f.label}</label>
+                            <div class="custom-calendar-wrapper">
+                                <div class="input" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="if(!this.hasAttribute('disabled')) toggleCustomCalendar()" ${disabledAttr ? 'disabled' : ''}>
+                                    <span id="cp_date_display" style="color: ${cpFormData[f.id] ? 'var(--text)' : 'var(--text-muted)'}">${disp}</span>
+                                    <svg class="icon"><use href="#ic-calendar"/></svg>
+                                </div>
+                                <div id="custom-calendar-container" class="custom-calendar"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label for="cp_${f.id}" class="form-label">${f.label}</label>
+                            <input type="text" id="cp_${f.id}" class="input" placeholder="Enter ${f.label.toLowerCase()}" value="${cpFormData[f.id] || ''}" oninput="updateCpData('${f.id}', this.value)" ${disabledAttr}>
+                        </div>
+                    `;
+                }
             });
+
             container.innerHTML = html;
         }
 
-        window.updateCpData = function(id, value) {
+        window.onCpSubjectChange = function (subjectName) {
+            updateCpData('subject', subjectName);
+            const subj = SUBJECTS.find(s => s.name === subjectName);
+            if (subj) {
+                updateCpData('submittedTo', subj.teacher);
+                const el = document.getElementById('cp_submittedTo');
+                if (el) el.value = subj.teacher;
+            }
+        };
+
+        let currentCalDate = new Date();
+        
+        window.toggleCustomCalendar = function() {
+            const container = document.getElementById('custom-calendar-container');
+            if (!container) return;
+            if (container.classList.contains('active')) {
+                container.classList.remove('active');
+            } else {
+                if (cpFormData.date) {
+                    currentCalDate = new Date(cpFormData.date);
+                } else {
+                    currentCalDate = new Date();
+                }
+                renderCustomCalendar();
+                container.classList.add('active');
+            }
+        };
+
+        window.renderCustomCalendar = function() {
+            const container = document.getElementById('custom-calendar-container');
+            if (!container) return;
+            
+            const year = currentCalDate.getFullYear();
+            const month = currentCalDate.getMonth();
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            const today = new Date();
+            const selDateStr = cpFormData.date || '';
+            
+            let html = `
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="changeCalMonth(-1)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="calendar-title">${monthNames[month]} ${year}</div>
+                    <button class="calendar-nav" onclick="changeCalMonth(1)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day-name">Su</div>
+                    <div class="calendar-day-name">Mo</div>
+                    <div class="calendar-day-name">Tu</div>
+                    <div class="calendar-day-name">We</div>
+                    <div class="calendar-day-name">Th</div>
+                    <div class="calendar-day-name">Fr</div>
+                    <div class="calendar-day-name">Sa</div>
+            `;
+            
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="calendar-day empty"></div>`;
+            }
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                let classes = ['calendar-day'];
+                if (dateStr === selDateStr) classes.push('selected');
+                if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) classes.push('today');
+                
+                html += `<div class="${classes.join(' ')}" onclick="selectCalDate('${dateStr}')">${i}</div>`;
+            }
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        };
+
+        window.changeCalMonth = function(delta) {
+            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+            renderCustomCalendar();
+        };
+
+        window.selectCalDate = function(dateStr) {
+            updateCpData('date', dateStr);
+            const disp = document.getElementById('cp_date_display');
+            if (disp) {
+                const pts = dateStr.split('-');
+                disp.textContent = `${pts[2]}/${pts[1]}/${pts[0]}`;
+                disp.style.color = 'var(--text)';
+            }
+            document.getElementById('custom-calendar-container').classList.remove('active');
+        };
+
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('custom-calendar-container');
+            if (container && container.classList.contains('active')) {
+                const wrapper = document.querySelector('.custom-calendar-wrapper');
+                if (wrapper && document.body.contains(e.target) && !wrapper.contains(e.target)) {
+                    container.classList.remove('active');
+                }
+            }
+        });
+
+        window.toggleCpEdit = function () {
+            isCpEditing = !isCpEditing;
+            initCpForm();
+        };
+
+        window.applyCpStudentData = function () {
+            const data = window.cpStudentData;
+            if (data) {
+                cpFormData.name = data.name || '';
+                cpFormData.rollNo = data.roll_no || '';
+                cpFormData.enrollmentNo = data.enrollment_no || '';
+                document.getElementById('cpEditBtn')?.classList.remove('hidden');
+                isCpEditing = false;
+            } else {
+                document.getElementById('cpEditBtn')?.classList.add('hidden');
+                isCpEditing = true;
+            }
+            initCpForm();
+            drawCpCanvas();
+        };
+
+        window.updateCpData = function (id, value) {
             cpFormData[id] = value;
             drawCpCanvas();
         };
@@ -5897,14 +6187,18 @@
             if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
             cpCtx.clearRect(0, 0, cpCanvas.width, cpCanvas.height);
             cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
-            const scale = cpCanvas.width / 800; 
+            const scale = cpCanvas.width / 800;
             const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
             cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
             cpCtx.fillStyle = CP_TEXT_COLOR;
             cpCtx.textBaseline = 'bottom';
-            
+
             cpFields.forEach(f => {
-                const text = cpFormData[f.id];
+                let text = cpFormData[f.id];
+                if (f.id === 'date' && text) {
+                    const parts = text.split('-');
+                    if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
                 if (text && text.trim() !== '') {
                     const absX = cpCanvas.width * f.x;
                     const absY = cpCanvas.height * f.y;
@@ -5920,7 +6214,7 @@
             cpStatusEl = document.getElementById('cp-status');
             cpBaseImage = new Image();
             initCpForm();
-            
+
             cpBaseImage.src = 'common.png';
             cpBaseImage.onload = () => {
                 cpStatusEl.style.display = 'none';
@@ -5934,7 +6228,7 @@
             };
         }
 
-        window.downloadCpCanvas = function() {
+        window.downloadCpCanvas = function () {
             if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
             const link = document.createElement('a');
             const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
@@ -5944,13 +6238,11 @@
             showToast('Cover page PNG downloaded successfully!');
         };
 
-        window.downloadCpPdf = function() {
+        window.downloadCpPdf = function () {
             if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0 || !cpCanvas) return;
-
             try {
                 const { jsPDF } = window.jspdf || {};
                 if (!jsPDF) throw new Error('PDF library is unavailable.');
-
                 const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
                 const imgData = cpCanvas.toDataURL('image/png');
                 const pdf = new jsPDF({
@@ -5958,7 +6250,6 @@
                     unit: 'px',
                     format: [cpCanvas.width, cpCanvas.height]
                 });
-
                 pdf.addImage(imgData, 'PNG', 0, 0, cpCanvas.width, cpCanvas.height);
                 pdf.save(`CoverPage_${name}.pdf`);
                 showToast('Cover page PDF downloaded successfully!');
@@ -5968,11 +6259,106 @@
             }
         };
 
-        window.zoomCp = function(delta) {
+        window.downloadCpBulkPdf = async function () {
+            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0 || !cpCanvas) return;
+            
+            const btn = document.querySelector('button[onclick="downloadCpBulkPdf()"]');
+            const originalBtnHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="icon icon-spin" style="margin-right:8px;"><use href="#ic-loader"/></svg> Generating...';
+            }
+
+            try {
+                const { jsPDF } = window.jspdf || {};
+                if (!jsPDF) throw new Error('PDF library is unavailable.');
+
+                const countStr = document.getElementById('cpBulkCount')?.value || '5';
+                const numAssignments = parseInt(countStr) || 5;
+                const pdf = new jsPDF({
+                    orientation: cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [cpCanvas.width, cpCanvas.height]
+                });
+
+                let isFirstPage = true;
+
+                const origSubj = cpFormData.subject;
+                const origTeacher = cpFormData.submittedTo;
+                const origAsgNo = cpFormData.assignmentNo;
+
+                // Make canvas background white for JPEG
+                const drawWhiteBgCanvas = () => {
+                    cpCtx.fillStyle = '#ffffff';
+                    cpCtx.fillRect(0, 0, cpCanvas.width, cpCanvas.height);
+                    cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
+                };
+
+                for (let s of SUBJECTS) {
+                    cpFormData.subject = s.name;
+                    cpFormData.submittedTo = s.teacher;
+                    for (let i = 1; i <= numAssignments; i++) {
+                        cpFormData.assignmentNo = String(i);
+                        
+                        // We must fill white bg if using JPEG, to avoid black backgrounds where transparent
+                        drawWhiteBgCanvas();
+                        // Then draw the text/signature
+                        const scale = cpCanvas.width / 800; 
+                        const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
+                        cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
+                        cpCtx.fillStyle = CP_TEXT_COLOR;
+                        cpCtx.textBaseline = 'bottom';
+                        
+                        cpFields.forEach(f => {
+                            let text = cpFormData[f.id];
+                            if (f.id === 'date' && text) {
+                                const parts = text.split('-');
+                                if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            }
+                            if (text && text.trim() !== '') {
+                                const absX = cpCanvas.width * f.x;
+                                const absY = cpCanvas.height * f.y;
+                                cpCtx.fillText(text, absX, absY);
+                            }
+                        });
+
+                        // Yield to main thread
+                        await new Promise(r => setTimeout(r, 10));
+
+                        if (!isFirstPage) {
+                            pdf.addPage([cpCanvas.width, cpCanvas.height], cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait');
+                        }
+                        isFirstPage = false;
+
+                        const imgData = cpCanvas.toDataURL('image/jpeg', 0.85);
+                        pdf.addImage(imgData, 'JPEG', 0, 0, cpCanvas.width, cpCanvas.height);
+                    }
+                }
+
+                cpFormData.subject = origSubj;
+                cpFormData.submittedTo = origTeacher;
+                cpFormData.assignmentNo = origAsgNo;
+                drawCpCanvas();
+
+                const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
+                pdf.save(`Bulk_CoverPages_${name}.pdf`);
+                showToast('Bulk PDF downloaded successfully!');
+            } catch (error) {
+                console.error('Bulk PDF export failed:', error);
+                showToast('Unable to download Bulk PDF right now.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
+                }
+            }
+        };
+
+        window.zoomCp = function (delta) {
             cpZoomLevel = Math.max(30, Math.min(300, cpZoomLevel + delta));
             if (cpCanvas) {
                 cpCanvas.style.width = `${cpZoomLevel}%`;
-                cpCanvas.style.maxWidth = 'none'; 
+                cpCanvas.style.maxWidth = 'none';
             }
         };
 
@@ -6191,4 +6577,5 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
+
 </html>
