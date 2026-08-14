@@ -56,7 +56,7 @@
             animation: icon-spin 1s linear infinite;
         }
     </style>
-    <link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="./manifest.json?v=3">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -6387,7 +6387,7 @@
             if (_ov) _ov.style.pointerEvents = 'none';
 
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(() => { });
+                navigator.serviceWorker.register('./sw.js?v=3').catch(() => { });
             }
 
             const list = document.getElementById('subjectList');
