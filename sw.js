@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'taskboard-' + Date.now();
+const CACHE_VERSION = 'taskboard-v2';
 const CACHE_NAME = CACHE_VERSION;
 const PRECACHE_URLS = [
     './index.html',
@@ -9,7 +9,7 @@ const PRECACHE_URLS = [
     'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700;800&display=swap'
 ];
 const NETWORK_ONLY_PATTERNS = [
-    /supabase\.co\/auth/,
+    /supabase\.co/,
     /cloudflare\.com\/turnstile/,
     /nullyex-worker\.nulllyex\.workers\.dev/
 ];
@@ -48,10 +48,7 @@ self.addEventListener('fetch', event => {
 
     if (request.method !== 'GET') return;
 
-    if (request.url.includes('/auth/v1/')) {
-        event.respondWith(fetch(request));
-        return;
-    }
+
 
     if (request.mode === 'navigate') {
         event.respondWith(

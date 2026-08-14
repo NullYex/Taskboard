@@ -2,8 +2,8 @@
     "name": "TaskBoard by NullYex",
     "short_name": "TaskBoard",
     "description": "An Assignment, notes & notice tracker for students",
-    "start_url": "/",
-    "scope": "/",
+    "start_url": "./",
+    "scope": "./",
     "display": "standalone",
     "background_color": "#0a0a0a",
     "theme_color": "#0a0a0a",
@@ -67,7 +67,7 @@
             "name": "Cover Page",
             "short_name": "Cover",
             "description": "Generate assignment cover page",
-            "url": "/?view=cover_page",
+            "url": "./?view=cover_page",
             "icons": [
                 {
                     "src": "icons/icon-96.png",
