@@ -3985,8 +3985,16 @@
                 supabaseClient.from('students').select('*').eq('email', state.user.email).single().then(({ data, error }) => {
                     if (data && !error) {
                         window.cpStudentData = data;
+                        showToast("Student details automatically filled.");
                         if (typeof window.applyCpStudentData === 'function') {
                             window.applyCpStudentData();
+                        }
+                    } else if (error) {
+                        console.error("Supabase Students Fetch Error:", error);
+                        if (error.code === 'PGRST116') {
+                            showToast("No automated details found for your email.", "error");
+                        } else {
+                            showToast("Database error: " + error.message, "error");
                         }
                     }
                 });
