@@ -3304,18 +3304,15 @@
                                 </button>
                             </div>
                             <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
-                                <div class="form-label" style="margin-bottom: 8px;">Bulk Generation</div>
+                                <div class="form-label" style="margin-bottom: 8px;">Bulk Generation (Current Subject)</div>
                                 <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
-                                    <input type="number" id="cpBulkCount" class="input" value="5" min="1" max="20"
-                                        style="width: 80px;" placeholder="Count">
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">Assignments per
-                                        Subject</span>
+                                    <input type="number" id="cpBulkStart" class="input" value="1" min="1" max="50" style="width: 70px;" placeholder="Start">
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">to</span>
+                                    <input type="number" id="cpBulkEnd" class="input" value="5" min="1" max="50" style="width: 70px;" placeholder="End">
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">Assignment Range</span>
                                 </div>
-                                <button class="btn btn-primary" style="width: 100%; justify-content: center;"
-                                    onclick="downloadCpBulkPdf()">
-                                    <svg class="icon">
-                                        <use href="#ic-download" />
-                                    </svg> Bulk Download PDF
+                                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="downloadCpBulkPdf()">
+                                    <svg class="icon"><use href="#ic-download" /></svg> Bulk Download PDF
                                 </button>
                             </div>
                         </div>
@@ -6112,7 +6109,7 @@
             semester: 'Third (3rd)',
             section: 'C',
             place: 'Jamshedpur',
-            name: '', rollNo: '', enrollmentNo: 'AJU/', assignmentNo: '', subject: '', submittedTo: '', date: ''
+            name: '', rollNo: 'AIDS/', enrollmentNo: 'AJU/', assignmentNo: '', subject: '', submittedTo: '', date: ''
         };
         const CP_BASE_FONT_SIZE = 20;
         const CP_TEXT_COLOR = '#1d1d1f';
@@ -6389,7 +6386,7 @@
             }
         };
 
-        window.downloadCpBulkPdf = async function () {
+       window.downloadCpBulkPdf = async function () {
             if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0 || !cpCanvas) return;
 
             const btn = document.querySelector('button[onclick="downloadCpBulkPdf()"]');
@@ -6403,8 +6400,15 @@
                 const { jsPDF } = window.jspdf || {};
                 if (!jsPDF) throw new Error('PDF library is unavailable.');
 
-                const countStr = document.getElementById('cpBulkCount')?.value || '5';
-                const numAssignments = parseInt(countStr) || 5;
+                const startStr = document.getElementById('cpBulkStart')?.value || '1';
+                const endStr = document.getElementById('cpBulkEnd')?.value || '5';
+                const startNum = parseInt(startStr) || 1;
+                const endNum = parseInt(endStr) || 5;
+
+                if (startNum > endNum) {
+                    throw new Error('Start number cannot be greater than end number.');
+                }
+
                 const pdf = new jsPDF({
                     orientation: cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait',
                     unit: 'px',
@@ -6412,70 +6416,57 @@
                 });
 
                 let isFirstPage = true;
-
-                const origSubj = cpFormData.subject;
-                const origTeacher = cpFormData.submittedTo;
                 const origAsgNo = cpFormData.assignmentNo;
-
-                // Make canvas background white for JPEG
                 const drawWhiteBgCanvas = () => {
                     cpCtx.fillStyle = '#ffffff';
                     cpCtx.fillRect(0, 0, cpCanvas.width, cpCanvas.height);
                     cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
                 };
 
-                for (let s of SUBJECTS) {
-                    cpFormData.subject = s.name;
-                    cpFormData.submittedTo = s.teacher;
-                    for (let i = 1; i <= numAssignments; i++) {
-                        cpFormData.assignmentNo = String(i);
+                for (let i = startNum; i <= endNum; i++) {
+                    cpFormData.assignmentNo = String(i);
+                    drawWhiteBgCanvas();
+                    const scale = cpCanvas.width / 800;
+                    const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
+                    cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
+                    cpCtx.fillStyle = CP_TEXT_COLOR;
+                    cpCtx.textBaseline = 'bottom';
 
-                        // We must fill white bg if using JPEG, to avoid black backgrounds where transparent
-                        drawWhiteBgCanvas();
-                        // Then draw the text/signature
-                        const scale = cpCanvas.width / 800;
-                        const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
-                        cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
-                        cpCtx.fillStyle = CP_TEXT_COLOR;
-                        cpCtx.textBaseline = 'bottom';
-
-                        cpFields.forEach(f => {
-                            let text = cpFormData[f.id];
-                            if (f.id === 'date' && text) {
-                                const parts = text.split('-');
-                                if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                            }
-                            if (text && text.trim() !== '') {
-                                const absX = cpCanvas.width * f.x;
-                                const absY = cpCanvas.height * f.y;
-                                cpCtx.fillText(text, absX, absY);
-                            }
-                        });
-
-                        // Yield to main thread
-                        await new Promise(r => setTimeout(r, 10));
-
-                        if (!isFirstPage) {
-                            pdf.addPage([cpCanvas.width, cpCanvas.height], cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait');
+                    cpFields.forEach(f => {
+                        let text = cpFormData[f.id];
+                        if (f.id === 'date' && text) {
+                            const parts = text.split('-');
+                            if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
                         }
-                        isFirstPage = false;
+                        if (text && text.trim() !== '') {
+                            const absX = cpCanvas.width * f.x;
+                            const absY = cpCanvas.height * f.y;
+                            cpCtx.fillText(text, absX, absY);
+                        }
+                    });
 
-                        const imgData = cpCanvas.toDataURL('image/jpeg', 0.85);
-                        pdf.addImage(imgData, 'JPEG', 0, 0, cpCanvas.width, cpCanvas.height);
+                    await new Promise(r => setTimeout(r, 10));
+
+                    if (!isFirstPage) {
+                        pdf.addPage([cpCanvas.width, cpCanvas.height], cpCanvas.width > cpCanvas.height ? 'landscape' : 'portrait');
                     }
+                    isFirstPage = false;
+
+                    const imgData = cpCanvas.toDataURL('image/jpeg', 0.85);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, cpCanvas.width, cpCanvas.height);
                 }
 
-                cpFormData.subject = origSubj;
-                cpFormData.submittedTo = origTeacher;
                 cpFormData.assignmentNo = origAsgNo;
                 drawCpCanvas();
 
                 const name = cpFormData['name'] ? cpFormData['name'].replace(/\s+/g, '_') : 'Document';
-                pdf.save(`Bulk_CoverPages_${name}.pdf`);
+                const subject = cpFormData['subject'] ? cpFormData['subject'].replace(/\s+/g, '_') : 'Subject';
+                pdf.save(`CoverPages_${subject}_Asg_${startNum}-${endNum}.pdf`);
                 showToast('Bulk PDF downloaded successfully!');
+                
             } catch (error) {
                 console.error('Bulk PDF export failed:', error);
-                showToast('Unable to download Bulk PDF right now.');
+                showToast(error.message || 'Unable to download Bulk PDF right now.', 'error');
             } finally {
                 if (btn) {
                     btn.disabled = false;
