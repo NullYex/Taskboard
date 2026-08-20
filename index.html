@@ -4345,24 +4345,34 @@
         }
 
         function sidebarToggle() {
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                if (!sidebar) return;
-                const opening = !sidebar.classList.contains('mobile-open');
-                sidebar.classList.toggle('mobile-open', opening);
-                if (overlay) {
-                    overlay.classList.toggle('active', opening);
-                    overlay.style.pointerEvents = opening ? 'auto' : 'none';
-                }
-                trackPillAnimation();
-            } else {
-                const el = document.getElementById('sidebar');
-                if (!el) return;
-                sbSetState(el.getAttribute('data-state') === 'expanded' ? 'collapsed' : 'expanded');
-            }
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        if (!sidebar) return;
+
+        const opening = !sidebar.classList.contains('mobile-open');
+
+        sidebar.classList.toggle('mobile-open', opening);
+
+        if (overlay) {
+            overlay.classList.toggle('active', opening);
+            overlay.style.pointerEvents = opening ? 'auto' : 'none';
         }
 
+        trackPillAnimation();
+    } else {
+        const el = document.getElementById('sidebar');
+
+        if (!el) return;
+
+        sbSetState(
+            el.getAttribute('data-state') === 'expanded'
+                ? 'collapsed'
+                : 'expanded'
+        );
+    }
+}
         function toggleDesktopSidebar() { sidebarToggle(); }
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
