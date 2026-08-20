@@ -6424,7 +6424,7 @@
                 };
 
                 for (let i = startNum; i <= endNum; i++) {
-                    cpFormData.assignmentNo = String(i);
+                    cpFormData.assignmentNo = String(i).padStart(2, '0');
                     drawWhiteBgCanvas();
                     const scale = cpCanvas.width / 800;
                     const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
