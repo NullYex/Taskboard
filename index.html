@@ -199,21 +199,38 @@
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 11px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-track {
             background: transparent;
+            margin-block: 6px;
+            margin-inline: 6px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--border-focus);
-            border-radius: 9999px;
+            background-color: var(--border-focus);
+            border-radius: 5px;
+            background-clip: padding-box; 
+        }
+
+        ::-webkit-scrollbar-thumb:vertical {
+            border-left: 2px solid transparent; 
+            border-right: 2px solid transparent;
+        }
+
+        ::-webkit-scrollbar-thumb:horizontal {
+            border-top: 2px solid transparent; 
+            border-bottom: 2px solid transparent;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
+            background-color: var(--text-muted);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
         }
 
         button {
@@ -279,14 +296,14 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            padding: 24px;
+            padding: 10px;
             text-align: center;
         }
 
         .cp-zoom-controls {
             position: absolute;
-            bottom: 24px;
-            right: 24px;
+            bottom: 14px;
+            right: 14px;
             display: flex;
             gap: 8px;
             z-index: 10;
@@ -2836,6 +2853,42 @@
         .calendar-day.today {
             border: 1px solid var(--primary);
         }
+
+        .combo-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-focus);
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: 6px;
+        }
+
+        .combo-dropdown.active {
+            display: flex;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .combo-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .combo-item:hover {
+            background: var(--border);
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -4009,6 +4062,10 @@
             const dpWrapper = document.getElementById('dpWrapper');
             if (dpWrapper && !dpWrapper.contains(e.target)) {
                 closeDatePicker();
+            }
+
+            if (!e.target.closest('.combo-wrapper')) {
+                document.querySelectorAll('.combo-dropdown').forEach(el => el.classList.remove('active'));
             }
         });
 
@@ -6131,20 +6188,26 @@
                     html += `
                         <div class="form-group" style="margin-bottom: 14px;">
                             <label for="cp_${f.id}" class="form-label">${f.label}</label>
-                            <select id="cp_${f.id}" class="input" onchange="onCpSubjectChange(this.value)" ${disabledAttr}>
-                                <option value="">Select Subject</option>
-                                ${SUBJECTS.map(s => `<option value="${s.name}" ${cpFormData.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')}
-                            </select>
+                            <div class="combo-wrapper" style="position: relative;">
+                                <input type="text" id="cp_${f.id}" class="input combo-input" style="padding-right: 32px;" placeholder="Select or type subject..." value="${cpFormData.subject || ''}" oninput="filterCombo('${f.id}'); onCpSubjectChange(this.value)" onclick="toggleCombo('${f.id}', true)" autocomplete="off" ${disabledAttr}>
+                                <svg class="icon combo-caret" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"><use href="#ic-chevron-down"/></svg>
+                                <div class="combo-dropdown" id="dropdown_${f.id}">
+                                    ${SUBJECTS.map(s => `<div class="combo-item" onclick="selectComboItem('${f.id}', '${s.name.replace(/'/g, "\\'")}')">${s.name}</div>`).join('')}
+                                </div>
+                            </div>
                         </div>
                     `;
                 } else if (f.id === 'submittedTo') {
                     html += `
                         <div class="form-group" style="margin-bottom: 14px;">
                             <label for="cp_${f.id}" class="form-label">${f.label}</label>
-                            <select id="cp_${f.id}" class="input" onchange="updateCpData('${f.id}', this.value)" ${disabledAttr}>
-                                <option value="">Select Teacher</option>
-                                ${uniqueTeachers.map(t => `<option value="${t}" ${cpFormData.submittedTo === t ? 'selected' : ''}>${t}</option>`).join('')}
-                            </select>
+                            <div class="combo-wrapper" style="position: relative;">
+                                <input type="text" id="cp_${f.id}" class="input combo-input" style="padding-right: 32px;" placeholder="Select or type teacher..." value="${cpFormData.submittedTo || ''}" oninput="filterCombo('${f.id}'); updateCpData('${f.id}', this.value)" onclick="toggleCombo('${f.id}', true)" autocomplete="off" ${disabledAttr}>
+                                <svg class="icon combo-caret" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"><use href="#ic-chevron-down"/></svg>
+                                <div class="combo-dropdown" id="dropdown_${f.id}">
+                                    ${uniqueTeachers.map(t => `<div class="combo-item" onclick="selectComboItem('${f.id}', '${t.replace(/'/g, "\\'")}')">${t}</div>`).join('')}
+                                </div>
+                            </div>
                         </div>
                     `;
                 } else if (f.id === 'date') {
@@ -6177,6 +6240,45 @@
 
             container.innerHTML = html;
         }
+
+        window.toggleCombo = function(id, show) {
+            document.querySelectorAll('.combo-dropdown').forEach(el => {
+                if (el.id !== 'dropdown_' + id) el.classList.remove('active');
+            });
+            const drop = document.getElementById('dropdown_' + id);
+            if (drop) drop.classList.toggle('active', show);
+        };
+
+        window.filterCombo = function(id) {
+            const input = document.getElementById('cp_' + id);
+            const drop = document.getElementById('dropdown_' + id);
+            if (!input || !drop) return;
+            
+            const filter = input.value.toLowerCase();
+            const items = drop.querySelectorAll('.combo-item');
+            let hasVisible = false;
+            
+            items.forEach(item => {
+                if (item.textContent.toLowerCase().includes(filter)) {
+                    item.style.display = 'block';
+                    hasVisible = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            drop.classList.toggle('active', hasVisible);
+        };
+
+        window.selectComboItem = function(id, val) {
+            const input = document.getElementById('cp_' + id);
+            if (input) {
+                input.value = val;
+                toggleCombo(id, false);
+                if (id === 'subject') onCpSubjectChange(val);
+                else updateCpData(id, val);
+            }
+        };
 
         window.onCpSubjectChange = function (subjectName) {
             updateCpData('subject', subjectName);
