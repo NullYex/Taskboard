@@ -6170,7 +6170,7 @@
             semester: 'Third (3rd)',
             section: 'C',
             place: 'Jamshedpur',
-            name: '', rollNo: 'AIDS/', enrollmentNo: 'AJU/', assignmentNo: '', subject: '', submittedTo: '', date: ''
+            name: '', rollNo: 'AIDS/', enrollmentNo: 'AJU/', assignmentNo: '', subject: '', submittedTo: '', date: 'TRACE_TEMPLATE'
         };
         const CP_BASE_FONT_SIZE = 20;
         const CP_TEXT_COLOR = '#1d1d1f';
@@ -6217,18 +6217,43 @@
                 } else if (f.id === 'date') {
                     let disp = 'Select Date';
                     if (cpFormData[f.id]) {
-                        const pts = cpFormData[f.id].split('-');
-                        if (pts.length === 3) disp = `${pts[2]}/${pts[1]}/${pts[0]}`;
+                        if (cpFormData[f.id] === 'TRACE_TEMPLATE') {
+                            disp = 'Traceable (88/88/26)';
+                        } else if (cpFormData[f.id] === 'BLANK_TEMPLATE') {
+                            disp = 'Blank Space';
+                        } else {
+                            const pts = cpFormData[f.id].split('-');
+                            if (pts.length === 3) disp = `${pts[2]}/${pts[1]}/${pts[0]}`;
+                        }
                     }
                     html += `
                         <div class="form-group" style="margin-bottom: 14px;">
                             <label class="form-label">${f.label}</label>
                             <div class="custom-calendar-wrapper">
                                 <div class="input" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="if(!this.hasAttribute('disabled')) toggleCustomCalendar()" ${disabledAttr ? 'disabled' : ''}>
-                                    <span id="cp_date_display" style="color: ${cpFormData[f.id] ? 'var(--text)' : 'var(--text-muted)'}">${disp}</span>
+                                    <span id="cp_date_display" style="color: ${(cpFormData[f.id] && cpFormData[f.id] !== 'TRACE_TEMPLATE' && cpFormData[f.id] !== 'BLANK_TEMPLATE') ? 'var(--text-main)' : 'var(--text-muted)'}">${disp}</span>
                                     <svg class="icon"><use href="#ic-calendar"/></svg>
                                 </div>
                                 <div id="custom-calendar-container" class="custom-calendar"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (f.id === 'assignmentNo') {
+                    let asgVal = parseInt(cpFormData[f.id] || '0', 10);
+                    let displayVal = asgVal > 0 ? String(asgVal).padStart(2, '0') : '';
+                    html += `
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label class="form-label">${f.label}</label>
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" id="cp_${f.id}" class="input" style="padding-right: 76px;" value="${displayVal}" placeholder="00" oninput="updateAssignmentNo(this.value)" onblur="formatAssignmentNoInput(this)" ${disabledAttr}>
+                                <div style="position: absolute; right: 6px; display: flex; gap:6px;">
+                                    <button type="button" class="btn btn-secondary btn-icon" style="padding: 0; min-height: 28px; width: 42px; border-radius: 6px;" onclick="changeAssignmentNo(-1)" ${disabledAttr}>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-icon" style="padding: 0; min-height: 28px; width: 42px; border-radius: 6px;" onclick="changeAssignmentNo(1)" ${disabledAttr}>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -6302,7 +6327,7 @@
             if (container.classList.contains('active')) {
                 container.classList.remove('active');
             } else {
-                if (cpFormData.date) {
+                if (cpFormData.date && cpFormData.date !== 'TRACE_TEMPLATE' && cpFormData.date !== 'BLANK_TEMPLATE') {
                     currentCalDate = new Date(cpFormData.date);
                 } else {
                     currentCalDate = new Date();
@@ -6327,6 +6352,14 @@
             const selDateStr = cpFormData.date || '';
 
             let html = `
+                <div style="display: flex; gap: 4px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border);">
+                    <div class="combo-item" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="clearCalDate()">
+                        <svg class="icon"><use href="#ic-circle-x"/></svg> Blank
+                    </div>
+                    <div class="combo-item" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="traceCalDate()">
+                        <svg class="icon"><use href="#ic-edit"/></svg> Traceable
+                    </div>
+                </div>
                 <div class="calendar-header">
                     <button class="calendar-nav" onclick="changeCalMonth(-1)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -6369,6 +6402,26 @@
             renderCustomCalendar();
         };
 
+        window.clearCalDate = function () {
+            updateCpData('date', 'BLANK_TEMPLATE');
+            const disp = document.getElementById('cp_date_display');
+            if (disp) {
+                disp.textContent = 'Blank (  /  /26)';
+                disp.style.color = 'var(--text-muted)';
+            }
+            document.getElementById('custom-calendar-container').classList.remove('active');
+        };
+
+        window.traceCalDate = function () {
+            updateCpData('date', 'TRACE_TEMPLATE');
+            const disp = document.getElementById('cp_date_display');
+            if (disp) {
+                disp.textContent = 'Traceable (88/88/26)';
+                disp.style.color = 'var(--text-muted)';
+            }
+            document.getElementById('custom-calendar-container').classList.remove('active');
+        };
+
         window.selectCalDate = function (dateStr) {
             updateCpData('date', dateStr);
             const disp = document.getElementById('cp_date_display');
@@ -6389,6 +6442,41 @@
                 }
             }
         });
+
+        window.changeAssignmentNo = function(delta) {
+            let val = parseInt(cpFormData.assignmentNo || '0', 10);
+            if (isNaN(val)) val = 0;
+            val += delta;
+            
+            if (val < 0) val = 0;
+            
+            let displayVal = val > 0 ? String(val).padStart(2, '0') : '';
+            
+            const input = document.getElementById('cp_assignmentNo');
+            if (input) input.value = displayVal;
+            
+            updateAssignmentNo(displayVal);
+        };
+
+        window.updateAssignmentNo = function(val) {
+            let num = parseInt(val, 10);
+            
+            if (isNaN(num) || num <= 0) {
+                cpFormData.assignmentNo = '';
+            } else {
+                cpFormData.assignmentNo = String(num).padStart(2, '0');
+            }
+            drawCpCanvas();
+        };
+
+        window.formatAssignmentNoInput = function(input) {
+            let num = parseInt(input.value, 10);
+            if (!isNaN(num) && num > 0) {
+                input.value = String(num).padStart(2, '0');
+            } else {
+                input.value = '';
+            }
+        };
 
         window.toggleCpEdit = function () {
             isCpEditing = !isCpEditing;
@@ -6428,14 +6516,65 @@
 
             cpFields.forEach(f => {
                 let text = cpFormData[f.id];
-                if (f.id === 'date' && text) {
+                if (f.id === 'date' && text && text !== 'TRACE_TEMPLATE' && text !== 'BLANK_TEMPLATE') {
                     const parts = text.split('-');
                     if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
                 }
-                if (text && text.trim() !== '') {
-                    const absX = cpCanvas.width * f.x;
-                    const absY = cpCanvas.height * f.y;
-                    cpCtx.fillText(text, absX, absY);
+                let absX = cpCanvas.width * f.x; 
+                const absY = cpCanvas.height * f.y;
+                if (f.id === 'assignmentNo' && (!text || parseInt(text, 10) <= 0)) {
+                    const singleNumWidth = cpCtx.measureText('0').width;
+                    const charGap = cpCanvas.width * 0.001;
+                    
+                    cpCtx.fillStyle = CP_TEXT_COLOR;
+                    cpCtx.fillText('0', absX, absY);
+                    
+                    absX += singleNumWidth + charGap;
+                    
+                    cpCtx.fillStyle = '#f0f0f0';
+                    cpCtx.fillText('8', absX, absY);
+                    
+                    cpCtx.fillStyle = CP_TEXT_COLOR;
+                } else if (text && text.trim() !== '') {
+                    if (f.id === 'date' && (text === 'TRACE_TEMPLATE' || text === 'BLANK_TEMPLATE')) {
+                        const isTrace = text === 'TRACE_TEMPLATE';
+                        const singleNumWidth = cpCtx.measureText('8').width;
+                        const slashWidth = cpCtx.measureText('/').width;
+                        const charGap = cpCanvas.width * 0.001;
+                        const itemGap = cpCanvas.width * 0.002;
+
+                        if (isTrace) {
+                            cpCtx.fillStyle = '#f0f0f0';
+                            cpCtx.fillText('8', absX, absY);
+                        }
+                        absX += singleNumWidth + charGap;
+
+                        if (isTrace) {
+                            cpCtx.fillText('8', absX, absY);
+                        }
+                        absX += singleNumWidth + itemGap; 
+
+                        cpCtx.fillStyle = CP_TEXT_COLOR;
+                        cpCtx.fillText('/', absX, absY);
+                        absX += slashWidth + itemGap;
+
+                        if (isTrace) {
+                            cpCtx.fillStyle = '#f0f0f0';
+                            cpCtx.fillText('8', absX, absY);
+                        }
+                        absX += singleNumWidth + charGap;
+
+                        if (isTrace) {
+                            cpCtx.fillText('8', absX, absY);
+                        }
+                        absX += singleNumWidth + itemGap; 
+
+                        cpCtx.fillStyle = CP_TEXT_COLOR;
+                        cpCtx.fillText('/26', absX, absY);
+                        
+                    } else {
+                        cpCtx.fillText(text, absX, absY);
+                    }
                 }
             });
         }
