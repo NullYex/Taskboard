@@ -6504,10 +6504,7 @@
             drawCpCanvas();
         };
 
-        function drawCpCanvas() {
-            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
-            cpCtx.clearRect(0, 0, cpCanvas.width, cpCanvas.height);
-            cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
+        window.renderCpText = function() {
             const scale = cpCanvas.width / 800;
             const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
             cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
@@ -6535,7 +6532,10 @@
                     cpCtx.fillText('8', absX, absY);
                     
                     cpCtx.fillStyle = CP_TEXT_COLOR;
-                } else if (text && text.trim() !== '') {
+                    return;
+                } 
+
+                if (text && text.trim() !== '') {
                     if (f.id === 'date' && (text === 'TRACE_TEMPLATE' || text === 'BLANK_TEMPLATE')) {
                         const isTrace = text === 'TRACE_TEMPLATE';
                         const singleNumWidth = cpCtx.measureText('8').width;
@@ -6577,6 +6577,14 @@
                     }
                 }
             });
+        };
+
+        function drawCpCanvas() {
+            if (!cpBaseImage || !cpBaseImage.complete || cpBaseImage.naturalWidth === 0) return;
+            cpCtx.clearRect(0, 0, cpCanvas.width, cpCanvas.height);
+            cpCtx.drawImage(cpBaseImage, 0, 0, cpCanvas.width, cpCanvas.height);
+
+            renderCpText();
         }
 
         function bootCp() {
@@ -6671,24 +6679,8 @@
                 for (let i = startNum; i <= endNum; i++) {
                     cpFormData.assignmentNo = String(i).padStart(2, '0');
                     drawWhiteBgCanvas();
-                    const scale = cpCanvas.width / 800;
-                    const fontSize = Math.round(CP_BASE_FONT_SIZE * scale);
-                    cpCtx.font = `500 ${fontSize}px ${CP_FONT_FAMILY}`;
-                    cpCtx.fillStyle = CP_TEXT_COLOR;
-                    cpCtx.textBaseline = 'bottom';
 
-                    cpFields.forEach(f => {
-                        let text = cpFormData[f.id];
-                        if (f.id === 'date' && text) {
-                            const parts = text.split('-');
-                            if (parts.length === 3) text = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        }
-                        if (text && text.trim() !== '') {
-                            const absX = cpCanvas.width * f.x;
-                            const absY = cpCanvas.height * f.y;
-                            cpCtx.fillText(text, absX, absY);
-                        }
-                    });
+                    renderCpText();
 
                     await new Promise(r => setTimeout(r, 10));
 
